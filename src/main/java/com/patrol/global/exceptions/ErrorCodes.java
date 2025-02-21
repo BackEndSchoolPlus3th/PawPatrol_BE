@@ -50,6 +50,26 @@ public enum ErrorCodes {
   PHONE_NUMBER_NOT_VERIFIED(400, "SMS_006", "휴대폰 번호는 인증을 완료 후 추가할 수 있습니다."),
   ALREADY_VERIFIED_PHONE_NUMBER(400, "SMS_007", "이미 인증된 휴대폰 번호입니다."),
 
+  // LostPost 관련 에러
+  LOST_POST_NOT_FOUND(404, "LOST_001", "실종 게시글을 찾을 수 없습니다."),
+  LOST_POST_CREATION_FAILED(500, "LOST_002", "실종 게시글 생성에 실패했습니다."),
+  LOST_POST_UPDATE_FAILED(500, "LOST_003", "실종 게시글 수정에 실패했습니다."),
+  LOST_POST_DELETION_FAILED(500, "LOST_004", "실종 게시글 삭제에 실패했습니다."),
+
+  // FindPost 관련 에러
+  FIND_POST_NOT_FOUND(404, "FIND_001", "제보 게시글을 찾을 수 없습니다."),
+  FIND_POST_CREATION_FAILED(500, "FIND_002", "제보 게시글 생성에 실패했습니다."),
+  FIND_POST_UPDATE_FAILED(500, "FIND_003", "제보 게시글 수정에 실패했습니다."),
+  FIND_POST_DELETION_FAILED(500, "FIND_004", "제보 게시글 삭제에 실패했습니다."),
+  FIND_POST_CONNECTION_FAILED(400, "FIND_005", "실종 게시글과 제보 게시글의 연결에 실패했습니다."),
+
+  // Comment 관련 에러
+  COMMENT_NOT_FOUND(404, "COMMENT_001", "댓글을 찾을 수 없습니다."),
+  COMMENT_CREATION_FAILED(500, "COMMENT_002", "댓글 생성에 실패했습니다."),
+  COMMENT_UPDATE_FAILED(500, "COMMENT_003", "댓글 수정에 실패했습니다."),
+  COMMENT_DELETION_FAILED(500, "COMMENT_004", "댓글 삭제에 실패했습니다."),
+  COMMENT_NOT_ASSOCIATED_WITH_POST(400, "COMMENT_005", "댓글은 실종 신고 또는 제보 게시글에만 작성할 수 있습니다."),
+
   // Business 에러 (500번대)
   INTERNAL_ERROR(500, "SYS_001", "내부 시스템 에러"),
   API_CALL_FAILED(500, "SYS_002", "외부 API 호출에 실패했습니다."),
