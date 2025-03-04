@@ -252,3 +252,5 @@ src/main/generated
 
 src/main/generated/
 __pycache__
+__pycache__/
+*.pyc
