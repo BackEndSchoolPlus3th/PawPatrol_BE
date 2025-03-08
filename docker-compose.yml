@@ -1,59 +1,57 @@
 version: "3.7"
-name: redpanda-quickstart-one-broker
-networks:
-  redpanda_network:
-    driver: bridge
-volumes:
-  redpanda-0: null
+
 services:
   redpanda-0:
     command:
       - redpanda
       - start
-      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
-      # Address the broker advertises to clients that connect to the Kafka API.
-      - --advertise-kafka-addr internal://redpanda-0:9092,external://${KAFKA_BROKER}
-      - --pandaproxy-addr internal://0.0.0.0:8082,external://0.0.0.0:18082
-      # Address the broker advertises to clients that connect to the HTTP Proxy.
-      - --advertise-pandaproxy-addr internal://redpanda-0:8082,external://${PANDAPROXY_ADDR}
-      - --schema-registry-addr internal://0.0.0.0:8081,external://0.0.0.0:18081
-      - --rpc-addr redpanda-0:33145
-      - --advertise-rpc-addr redpanda-0:33145
-      - --smp 1
-      - --memory 1G
-      - --mode dev-container
-      - --default-log-level=debug
+      - --kafka-addr internal://0.0.0.0:9092,external://43.201.55.18:19092
+      - --advertise-kafka-addr internal://redpanda-0:9092,external://43.201.55.18:19092
+      - --pandaproxy-addr internal://0.0.0.0:8082,external://43.201.55.18:18082
+      - --advertise-pandaproxy-addr internal://redpanda-0:8082,external://43.201.55.18:18082
+      - --schema-registry-addr internal://0.0.0.0:8081,external://43.201.55.18:18081
     image: docker.redpanda.com/redpandadata/redpanda:v23.3.6
     container_name: redpanda-0
-    volumes:
-      - redpanda-0:/var/lib/redpanda/data
     networks:
-      - redpanda_network
+      - backend_network
     ports:
       - 18081:18081
       - 18082:18082
       - 19092:19092
       - 19644:9644
-  console:
-    container_name: redpanda-console
-    image: docker.redpanda.com/redpandadata/console:v2.4.3
-    networks:
-      - redpanda_network
-    entrypoint: /bin/sh
-    command: -c 'echo "$$CONSOLE_CONFIG_FILE" > /tmp/config.yml; /app/console'
-    environment:
-      CONFIG_FILEPATH: /tmp/config.yml
-      CONSOLE_CONFIG_FILE: |
-        kafka:
-          brokers: ["${KAFKA_BROKER}"]
-          schemaRegistry:
-            enabled: true
-            urls: ["http://${SCHEMA_REGISTRY_ADDR}"]
-        redpanda:
-          adminApi:
-            enabled: true
-            urls: ["http://redpanda-0:9644"]
+    deploy:
+      resources:
+        limits:
+          memory: "256MB"
+          cpus: "0.3"
+        reservations:
+          memory: "128MB"
+
+  main-service:
+    image: ghcr.io/backendschoolplus3th/pawpatrol:latest
+    container_name: main-service
+    restart: unless-stopped
     ports:
-      - 8070:8080
-    depends_on:
-      - redpanda-0
+      - "8081:8081"
+    networks:
+      - backend_network
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - AI_SERVICE_URL=http://43.201.55.18:8000
+
+  ai-service:
+    image: ghcr.io/your-username/pawpatrol-ai-service:latest
+    container_name: ai-service
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    networks:
+      - backend_network
+    environment:
+      - TZ=Asia/Seoul
+    volumes:
+      - /dockerProjects/pawpatrol/ai/models:/app/models
+
+networks:
+  backend_network:
+    driver: bridge

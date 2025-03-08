@@ -48,7 +48,7 @@ public class ImageEventConsumer {
 
             if (image == null) {
                 log.info("🚨 이미지 ID {}는 status가 null이므로 Kafka 처리에서 제외됨", imageId);
-                return; // Kafka 처리 중단
+                return;
             }
 
             log.info("🔍 AI 서버에 이미지 분석 요청: imageId={}", imageId);

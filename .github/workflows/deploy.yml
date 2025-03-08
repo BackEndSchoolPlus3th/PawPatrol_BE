@@ -89,3 +89,7 @@ jobs:
             curl -o /dockerProjects/pawpatrol/zero_downtime_deploy.py https://raw.githubusercontent.com/BackEndSchoolPlus3th/PawPatrol_BE/main/infraScript/zero_downtime_deploy.py
             chmod +x /dockerProjects/pawpatrol/zero_downtime_deploy.py
             /dockerProjects/pawpatrol/zero_downtime_deploy.py
+            
+            curl -o /dockerProjects/pawpatrol/ai_zero_downtime_deploy.py https://raw.githubusercontent.com/BackEndSchoolPlus3th/PawPatrol_BE/main/infraScript/ai_zero_downtime_deploy.py
+            chmod +x /dockerProjects/pawpatrol/ai_zero_downtime_deploy.py
+            /dockerProjects/pawpatrol/ai_zero_downtime_deploy.py

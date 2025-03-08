@@ -30,7 +30,6 @@ public class CommentService {
         Comment comment = new Comment();
         comment.setContent(requestDto.getContent());
 
-        // ✅ 로그인한 사용자 정보 설정
         comment.setAuthor(author);
 
         // FindPost 조회 후 설정
@@ -74,7 +73,7 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public List<CommentResponseDto> getCommentsByLostFoundPost(Long lostFoundPostId) {
-        List<Comment> comments = commentRepository.findByLostFoundPostId(lostFoundPostId);  // ✅ 올바른 메서드 호출
+        List<Comment> comments = commentRepository.findByLostFoundPostId(lostFoundPostId);
         if (comments.isEmpty()) {
             throw new RuntimeException("해당 제보글에 대한 댓글이 없습니다.");
         }
