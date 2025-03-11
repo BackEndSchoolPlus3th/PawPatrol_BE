@@ -26,6 +26,7 @@ public class ImageEventProducer {
 
     public void sendImageEvent(Long imageId, String imageUrl) {
         try {
+            log.info("🔍🔍🔍🔍🔍 Producer에 도착!!!!!!!!!!!!!!!!!!!!!!!!!");
             Map<String, String> event = new HashMap<>();
             event.put("imageId", imageId.toString());
             event.put("imageUrl", imageUrl);
