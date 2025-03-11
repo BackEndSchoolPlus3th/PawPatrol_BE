@@ -14,7 +14,7 @@ spring:
     bootstrap-servers: 43.201.55.18:19092
     consumer:
       group-id: image-embedding-processor
-      auto-offset-reset: latest
+      auto-offset-reset: earliest
     producer:
       retries: 3
     listener:
