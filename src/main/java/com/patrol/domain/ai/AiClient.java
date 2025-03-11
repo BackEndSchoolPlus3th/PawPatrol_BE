@@ -33,11 +33,13 @@ public class AiClient {
         Map<String, String> body = new HashMap<>();
         body.put("image_url", imageUrl);
 
+
         HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(body, headers);
 
         try {
             String endpoint = aiServiceUrl + "/extract-embedding-from-url";
             log.info("📡 AI 서비스 요청: POST {}", endpoint);
+            log.info("📦 요청 데이터: {}", objectMapper.writeValueAsString(body));
 
             ResponseEntity<String> response = restTemplate.postForEntity(endpoint, requestEntity, String.class);
 
@@ -45,13 +47,13 @@ public class AiClient {
                 JsonNode jsonNode = objectMapper.readTree(response.getBody());
                 if (jsonNode == null || jsonNode.get("embedding") == null || jsonNode.get("features") == null) {
                     log.error("🚨 FastAPI 임베딩 추출 실패: 응답 값이 유효하지 않음");
-                    return Map.of("embedding", "", "features", "");
+                    return Map.of("embedding", "", "features", "");  // 빈 값 반환
                 }
 
-                return Map.of(
-                        "embedding", jsonNode.get("embedding").toString(),
-                        "features", jsonNode.get("features").toString()
-                );
+                Map<String, String> result = new HashMap<>();
+                result.put("embedding", jsonNode.get("embedding").toString());
+                result.put("features", jsonNode.get("features").toString());
+                return result;
             } else {
                 log.error("❌ AI 서비스 응답 오류: {}", response.getStatusCode());
                 throw new IOException("URL 임베딩 추출 API 호출 실패: " + response.getStatusCode());
@@ -59,6 +61,9 @@ public class AiClient {
         } catch (RestClientException e) {
             log.error("❌ AI 서비스 통신 오류: {}", e.getMessage(), e);
             throw new IOException("AI 서비스 연결 오류: " + e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("❌ 예상치 못한 오류 발생: {}", e.getMessage(), e);
+            throw new IOException("임베딩 추출 중 예외 발생: " + e.getMessage(), e);
         }
     }
 

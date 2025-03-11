@@ -1,60 +1,31 @@
 version: "3.7"
 
 services:
-  redpanda-0:
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v23.3.6
+    container_name: redpanda
     command:
       - redpanda
       - start
-      - --kafka-addr internal://0.0.0.0:9092,external://43.201.55.18:19092,external://10.0.1.162:19092
-      - --advertise-kafka-addr internal://redpanda-0:9092,external://43.201.55.18:19092,external://10.0.1.162:19092
-      - --pandaproxy-addr internal://0.0.0.0:8082,external://43.201.55.18:18082,external://10.0.1.162:18082
-      - --advertise-pandaproxy-addr internal://redpanda-0:8082,external://43.201.55.18:18082,external://10.0.1.162:18082
-      - --schema-registry-addr internal://0.0.0.0:8081,external://43.201.55.18:18081,external://10.0.1.162:18081
-    image: docker.redpanda.com/redpandadata/redpanda:v23.3.6
-    container_name: redpanda-0
-    networks:
-      - backend_network
+      - --smp 1                     # 최소 CPU 사용 (1코어)
+      - --memory 256MB              # 최소 메모리 사용
+      - --mode dev-container        # 개발 환경 최적화
+      - --default-log-level=warn    # 로그 레벨을 경량화
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
+      - --advertise-kafka-addr internal://redpanda:9092,external://43.201.55.18:19092
     ports:
-      - 18081:18081
-      - 18082:18082
-      - 19092:19092
-      - 19644:9644
+      - 19092:19092  # Kafka 포트
+      - 9644:9644    # Admin API 포트
+    networks:
+      - redpanda_network
     deploy:
       resources:
         limits:
           memory: "256MB"
-          cpus: "0.3"
+          cpus: "0.2"
         reservations:
           memory: "128MB"
 
-  main-service:
-    image: ghcr.io/backendschoolplus3th/pawpatrol_be:latest
-    container_name: main-service
-    restart: unless-stopped
-    ports:
-      - "8081:8081"
-    networks:
-      - backend_network
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - AI_SERVICE_URL=http://223.130.161.144:8000
-
-  ai-service:
-    build:
-      context: ./ai
-      dockerfile: Dockerfile
-    image: ghcr.io/backendschoolplus3th/pawpatrol-ai-service:latest
-    container_name: ai-service
-    restart: unless-stopped
-    ports:
-      - "8000:8000"
-    networks:
-      - backend_network
-    environment:
-      - TZ=Asia/Seoul
-    volumes:
-      - /dockerProjects/pawpatrol/PawPatrol_BE/ai/models:/app/models
-
 networks:
-  backend_network:
+  redpanda_network:
     driver: bridge

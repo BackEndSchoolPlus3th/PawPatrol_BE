@@ -219,6 +219,7 @@ async def compare_embeddings(data: CompareEmbeddingsRequest):
 @app.post("/extract-embedding-from-url")
 async def extract_embedding_from_url_api(request: ImageRequest):
     """ URL에서 임베딩을 추출하는 API """
+
     try:
         if not request.image_url:
             raise HTTPException(status_code=400, detail="image_url이 제공되지 않았습니다.")
