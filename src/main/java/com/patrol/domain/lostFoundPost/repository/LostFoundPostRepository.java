@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface LostFoundPostRepository extends JpaRepository<LostFoundPost, Long> {
@@ -60,5 +61,7 @@ public interface LostFoundPostRepository extends JpaRepository<LostFoundPost, Lo
             @Param("longitude") double longitude,
             @Param("radius") double radius,
             @Param("name") String name);
+
+    Optional<LostFoundPost> findById (Long foundId);
 
 }

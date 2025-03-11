@@ -166,7 +166,7 @@ public class AdoptionAnimalService {
           String animalNo = row.getAnimalNo();
           String imageUrl = "https://" + row.getPhotoUrl();
 
-          Image existingImage = imageRepository.findByPath(imageUrl);
+          Image existingImage = (Image) imageRepository.findByPath(imageUrl);
           if (existingImage == null) {
             existingImage = Image.builder()
                 .path("https://" + row.getPhotoUrl())

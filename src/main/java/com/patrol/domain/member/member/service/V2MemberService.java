@@ -159,7 +159,6 @@ public class V2MemberService {
     @Transactional
     public boolean validateNewEmail(String email) {
         logger.info("소셜 로그인 연동 시 자체 계정 유무 확인_validateNewEmail");
-        // 가입된 회원이 있으면 true 반환, 없으면 false 반환
         return v2MemberRepository.findByEmail(email).isPresent();
     }
 

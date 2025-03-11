@@ -1,6 +1,5 @@
-package com.patrol.domain.image.service;
+package com.patrol.domain.ai;
 
-import com.patrol.api.ai.AiClient;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -27,12 +27,6 @@ public class Image {
     @Column(name= "animal_id", nullable= true)
     private Long animalId;
 
-    @Column(columnDefinition = "TEXT")
-    private String embedding;
-
-    @Column(columnDefinition = "TEXT")
-    private String features;
-
     @Enumerated(EnumType.STRING)
     private PostStatus status;
 
@@ -41,12 +35,10 @@ public class Image {
 
     @Builder
     public Image(String path, Long animalId, Long foundId,
-                 String embedding, String features, PostStatus status, AnimalType animalType) {
+                 PostStatus status, AnimalType animalType) {
         this.path = path;
         this.animalId = animalId;
         this.foundId = foundId;
-        this.embedding = embedding;
-        this.features = features;
         this.status = status;
         this.animalType = animalType;
         this.createdAt = LocalDateTime.now();

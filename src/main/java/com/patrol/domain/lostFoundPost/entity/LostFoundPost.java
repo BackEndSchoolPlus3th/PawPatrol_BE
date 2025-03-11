@@ -2,6 +2,7 @@ package com.patrol.domain.lostFoundPost.entity;
 
 import com.patrol.api.lostFoundPost.dto.LostFoundPostRequestDto;
 import com.patrol.domain.Postable.Postable;
+import com.patrol.domain.ai.AiImage;
 import com.patrol.domain.animal.entity.Animal;
 import com.patrol.domain.animal.enums.AnimalType;
 import com.patrol.domain.comment.entity.Comment;
@@ -32,15 +33,17 @@ public class LostFoundPost extends BaseEntity implements Postable {
 
 
     @OneToMany(mappedBy = "lostFoundPost", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();  // Comments relationship
+    private List<Comment> comments = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.EAGER)  // 즉시 로딩
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "pet_id", nullable = true)
     private Animal pet;
 
     @Enumerated(EnumType.STRING)
-    private AnimalType animalType;  // Add animalType field
+    private AnimalType animalType;
 
+    @OneToOne(mappedBy = "lostFoundPost", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private AiImage aiImage;
 
     private String title;
     private String content;
@@ -61,39 +64,31 @@ public class LostFoundPost extends BaseEntity implements Postable {
     public LostFoundPost(LostFoundPostRequestDto requestDto, Member author, Animal pet, AnimalType animalType) {
         this(requestDto);
         this.author = author;
-        this.pet = pet;  // null로 전달되면 null로 유지됨
+        this.pet = pet;
         this.animalType = animalType != null ? animalType : null;
     }
 
-
-    // 생성자 (FindPostRequestDto로부터 값 초기화)
     public LostFoundPost(LostFoundPostRequestDto requestDto) {
         this.content = requestDto.getContent();
         this.latitude = requestDto.getLatitude();
         this.longitude = requestDto.getLongitude();
         this.location = requestDto.getLocation();
-        // Check if lostTime is provided
-        // Handle findTime and lostTime based on input
         if (requestDto.getLostTime() != null && requestDto.getFindTime() == null) {
             this.lostTime = requestDto.getLostTime();
-            this.findTime = null;  // Ensure findTime is null when lostTime is provided
+            this.findTime = null;
         } else if (requestDto.getFindTime() != null && requestDto.getLostTime() == null) {
             this.findTime = requestDto.getFindTime();
-            this.lostTime = null;  // Ensure lostTime is null when findTime is provided
+            this.lostTime = null;
         } else {
-            // Optionally, you could throw an error if both times are provided, but for now, set both to null
             this.findTime = null;
             this.lostTime = null;
         }
-        // status 필드가 null이 아니면 PostStatus로 변환
         if (requestDto.getStatus() != null) {
             this.status = PostStatus.valueOf(requestDto.getStatus());
         } else {
-            this.status = PostStatus.FINDING; // 기본값 설정
+            this.status = PostStatus.FINDING;
         }
-
         this.animalType = requestDto.getAnimalType() != null ? AnimalType.valueOf(requestDto.getAnimalType()) : null;  // Set animalType
-
     }
 
     public LostFoundPost (LostFoundPostRequestDto requestDto, Member author, Animal pet) {
@@ -110,7 +105,7 @@ public class LostFoundPost extends BaseEntity implements Postable {
 
     @Override
     public Long getId() {
-        return super.getId(); // BaseEntity에서 상속
+        return super.getId();
     }
 
     @Override

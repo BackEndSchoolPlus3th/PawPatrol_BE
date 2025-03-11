@@ -1,5 +1,6 @@
 package com.patrol.domain.image.service;
 
+import com.patrol.domain.ai.ImageEventProducer;
 import com.patrol.domain.animal.enums.AnimalType;
 import com.patrol.domain.image.entity.Image;
 import com.patrol.domain.image.repository.ImageRepository;
@@ -18,10 +19,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
-import retrofit2.http.HEAD;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -46,7 +49,6 @@ public class ImageHandlerServiceImpl implements ImageHandlerService {
     @Override
     @Transactional
     public Image registerImage (String imageUrl, Long animalId, Long foundId, PostStatus status, AnimalType animalType) {
-        log.info("이미지 등록 시작: animalId={}, foundId={}, Path={}", animalId, foundId, imageUrl);
 
         Image image = Image.builder()
                 .path(imageUrl)
@@ -58,25 +60,7 @@ public class ImageHandlerServiceImpl implements ImageHandlerService {
 
         Image savedImage = imageRepository.save(image);
 
-        log.info("이미지 저장 완료: ID={}, animalId={}, foundId={}, Path={}",
-                savedImage.getId(), savedImage.getAnimalId(), savedImage.getFoundId(), savedImage.getPath());
-
         return savedImage;
-    }
-
-    @Override
-    public void registerImageAndSendEvent(String path, Long animalId, Long foundId, PostStatus status, AnimalType animalType) {
-        // 먼저 이미지 등록
-        Image image = registerImage(path, animalId, foundId, status, animalType);
-
-        // 트랜잭션 완료 후 Kafka 이벤트 전송 보장
-        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-            @Override
-            public void afterCommit() {
-                imageEventProducer.sendImageEvent(image.getId(), image.getPath());
-                log.info("✅ Kafka 이벤트 전송 요청 완료: imageId={}, path={}", image.getId(), image.getPath());
-            }
-        });
     }
 
     @Transactional
@@ -121,9 +105,6 @@ public class ImageHandlerServiceImpl implements ImageHandlerService {
             throw new CustomException(ErrorCode.DATABASE_ERROR);
         }
     }
-
-
-
 
     @Override
     public List<Image> uploadAndModifiedImages(List<MultipartFile> imageFiles, String folderPath, Long animalId) {
@@ -187,7 +168,7 @@ public class ImageHandlerServiceImpl implements ImageHandlerService {
             // 스토리지에서 파일 삭제
             ncpObjectStorageService.delete(path);
             // DB에서 해당 경로의 이미지 찾아서 삭제
-            Image image = imageRepository.findByPath(path);
+            Image image = (Image) imageRepository.findByPath(path);
             if (image != null) {
                 imageRepository.delete(image);
             }
@@ -195,5 +176,19 @@ public class ImageHandlerServiceImpl implements ImageHandlerService {
             log.error("이미지 삭제 중 오류 발생: {}", e.getMessage(), e);
             throw new CustomException(ErrorCode.FILE_DELETE_ERROR);
         }
+    }
+
+    public String uploadImage(MultipartFile file) {
+        String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+        String filePath = "/ai/" + fileName;
+
+        try {
+            File dest = new File(filePath);
+            file.transferTo(dest);
+        } catch (IOException e) {
+            throw new RuntimeException("이미지 업로드 실패", e);
+        }
+
+        return filePath;
     }
 }
