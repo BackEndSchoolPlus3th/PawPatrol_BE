@@ -19,8 +19,6 @@ spring:
       retries: 3
     listener:
       concurrency: 3
-
-
   profiles:
     active: dev
     include: secret

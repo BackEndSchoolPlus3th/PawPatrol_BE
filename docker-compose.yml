@@ -27,7 +27,6 @@ services:
         reservations:
           memory: "128MB"
 
-
   main-service:
     image: ghcr.io/backendschoolplus3th/pawpatrol_be:latest
     container_name: main-service
