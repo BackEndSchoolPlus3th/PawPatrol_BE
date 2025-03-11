@@ -1,7 +1,5 @@
 package com.patrol.domain.ai;
 
-import com.patrol.domain.image.entity.Image;
-import com.patrol.domain.lostFoundPost.entity.PostStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,9 +7,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface AiImageRepository extends JpaRepository<AiImage, Long> {
-    boolean existsByPath (String path);
-
-    List<AiImage> findByStatus (PostStatus postStatus);
 
     @Query("""
     SELECT i FROM AiImage i
@@ -25,4 +20,6 @@ public interface AiImageRepository extends JpaRepository<AiImage, Long> {
             @Param("lat") double latitude,
             @Param("lng") double longitude,
             @Param("radius") double radius);
+
+    boolean existsByEmbeddingIsNotNullOrFeaturesIsNotNullAndPath (String path);
 }

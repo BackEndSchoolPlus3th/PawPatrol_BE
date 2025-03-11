@@ -39,6 +39,7 @@ public class FileStorageHandler {
 
             HashMap<String, Object> options = new HashMap<>();
             options.put(StorageService.CONTENT_TYPE, contentType);
+            options.put("contentLength", request.getFile().getSize());
 
             String filePath = request.getFolderPath() + filename;
             storageService.upload(filePath, request.getFile().getInputStream(), options);

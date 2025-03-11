@@ -5,6 +5,7 @@ import com.patrol.api.lostFoundPost.dto.LostFoundPostResponseDto;
 import com.patrol.api.member.auth.dto.MyPostsResponse;
 import com.patrol.domain.ai.AiImage;
 import com.patrol.domain.ai.AiImageRepository;
+import com.patrol.domain.ai.AiImageService;
 import com.patrol.domain.animal.entity.Animal;
 import com.patrol.domain.animal.enums.AnimalType;
 import com.patrol.domain.animal.repository.AnimalRepository;
@@ -17,6 +18,9 @@ import com.patrol.domain.image.repository.ImageRepository;
 import com.patrol.domain.member.member.entity.Member;
 import com.patrol.global.error.ErrorCode;
 import com.patrol.global.exception.CustomException;
+import com.patrol.global.storage.FileStorageHandler;
+import com.patrol.global.storage.FileUploadRequest;
+import com.patrol.global.storage.FileUploadResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -39,7 +43,7 @@ public class LostFoundPostService {
     private final AnimalRepository animalRepository;
     private final ImageRepository imageRepository;
     private final ImageHandlerService imageHandlerService;
-    private final AiImageRepository aiImageRepository;
+    private final AiImageService aiImageService;
     private static final String FOLDER_PATH = "lostfoundpost/";
 
     @Transactional
@@ -67,30 +71,12 @@ public class LostFoundPostService {
                 }
             }
         }
-        if (images != null && !images.isEmpty()) {
-            saveAiImages(images, lostFoundPost.getId(), lostFoundPost);
-            return getSavedImages(images, lostFoundPost);
-        }
-        saveAiImages(images, lostFoundPost.getId(), lostFoundPost);
+        getSavedImages(images, lostFoundPost);
+        aiImageService.saveAiImages(images, lostFoundPost.getId(), lostFoundPost);
+
         return LostFoundPostResponseDto.from(lostFoundPost);
     }
 
-    private void saveAiImages(List<MultipartFile> images, Long foundId, LostFoundPost lostFoundPost ) {
-        Optional<Image> first = imageRepository.findFirstByFoundIdOrderByCreatedAtAsc(foundId);
-
-        if (first.isPresent()) {
-            String firstImagePath = first.get().getPath();
-
-            AiImage aiImage = new AiImage();
-            aiImage.setLostFoundPost(lostFoundPost);
-            aiImage.setPath(firstImagePath);
-            aiImage.setCreatedAt(LocalDateTime.now());
-            aiImage.setStatus(lostFoundPost.getStatus());
-            aiImage.setAnimalType(lostFoundPost.getAnimalType());
-
-            aiImageRepository.save(aiImage);
-        }
-    }
 
     @Transactional
     public LostFoundPostResponseDto updateLostFoundPost(Long postId, LostFoundPostResponseDto requestDto, List<MultipartFile> images, Member author) {

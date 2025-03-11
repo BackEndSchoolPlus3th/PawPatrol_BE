@@ -41,7 +41,7 @@ class CompareEmbeddingsRequest(BaseModel):
 # ================ #
 def get_existing_images_by_status(status: str):
     """DB에서 특정 상태(FINDING, SIGHTED)의 이미지 리스트 가져오기"""
-    response = requests.get(f"http://localhost:8090/api/images?status={status}")  # Java 서버 API 호출
+    response = requests.get(f"http://43.201.55.18:8090/api/images?status={status}")  # Java 서버 API 호출
     if response.status_code != 200:
         return []
     return response.json().get("images", [])

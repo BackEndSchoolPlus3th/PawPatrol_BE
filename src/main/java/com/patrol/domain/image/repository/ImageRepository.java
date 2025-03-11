@@ -24,4 +24,6 @@ public interface ImageRepository extends JpaRepository<Image, Long> {
     List<Image> findByPath(String path);
 
     Optional<Image> findFirstByFoundIdOrderByCreatedAtAsc(Long foundId);
+
+    Image findByFoundId (Long foundId);
 }

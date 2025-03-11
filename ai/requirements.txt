@@ -1,16 +1,15 @@
-# 얼굴인식 라이브러리
-dlib
-face_recognition
-facenet_pytorch
-
-# 이미지 처리
-imutils
-opencv-python
-matplotlib
-
-# 빠른 데모
-gradio
 fastapi
 uvicorn
-clip
+opencv-python-headless
+numpy
+gradio
+dlib==19.24.0
 torch
+torchvision
+facenet-pytorch
+face_recognition
+git+https://github.com/openai/CLIP.git
+imutils
+Pillow
+requests
+matplotlib

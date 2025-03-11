@@ -47,6 +47,8 @@ public class NcpObjectStorageService implements StorageService {
         if (options.containsKey("contentLength")) {
             Long contentLength = (Long) options.get("contentLength");
             objectMetadata.setContentLength(contentLength);
+        }else {
+            log.warn("⚠️ Content-Length 미설정! Stream 데이터가 메모리에 버퍼링될 가능성이 있음.");
         }
 
         PutObjectRequest putObjectRequest = new PutObjectRequest(
