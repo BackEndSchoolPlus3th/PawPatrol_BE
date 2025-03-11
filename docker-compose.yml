@@ -5,11 +5,11 @@ services:
     command:
       - redpanda
       - start
-      - --kafka-addr internal://0.0.0.0:9092,external://43.201.55.18:19092
-      - --advertise-kafka-addr internal://redpanda-0:9092,external://43.201.55.18:19092
-      - --pandaproxy-addr internal://0.0.0.0:8082,external://43.201.55.18:18082
-      - --advertise-pandaproxy-addr internal://redpanda-0:8082,external://43.201.55.18:18082
-      - --schema-registry-addr internal://0.0.0.0:8081,external://43.201.55.18:18081
+      - --kafka-addr internal://0.0.0.0:9092,external://43.201.55.18:19092,external://10.0.1.162:19092
+      - --advertise-kafka-addr internal://redpanda-0:9092,external://43.201.55.18:19092,external://10.0.1.162:19092
+      - --pandaproxy-addr internal://0.0.0.0:8082,external://43.201.55.18:18082,external://10.0.1.162:18082
+      - --advertise-pandaproxy-addr internal://redpanda-0:8082,external://43.201.55.18:18082,external://10.0.1.162:18082
+      - --schema-registry-addr internal://0.0.0.0:8081,external://43.201.55.18:18081,external://10.0.1.162:18081
     image: docker.redpanda.com/redpandadata/redpanda:v23.3.6
     container_name: redpanda-0
     networks:
@@ -26,6 +26,7 @@ services:
           cpus: "0.3"
         reservations:
           memory: "128MB"
+
 
   main-service:
     image: ghcr.io/backendschoolplus3th/pawpatrol_be:latest
