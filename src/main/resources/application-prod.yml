@@ -35,6 +35,6 @@ custom:
   cookie:
     domain: api.pawpatrols.shop
   oauth2:
-    redirect-uri: https://api.pawpatrols.shop/connect
+    redirect-uri: https://www.pawpatrols.shop/connect
   auth:
-    redirect-uri: https://api.pawpatrols.shop/login-pet
+    redirect-uri: https://www.pawpatrols.shop/login-pet
