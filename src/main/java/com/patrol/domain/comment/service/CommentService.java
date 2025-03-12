@@ -27,7 +27,7 @@ public class CommentService {
         Comment comment = new Comment();
         comment.setContent(requestDto.getContent());
 
-        // ✅ 로그인한 사용자 정보 설정
+        // 로그인한 사용자 정보 설정
         comment.setAuthor(author);
 
         // FindPost 조회 후 설정
@@ -36,8 +36,12 @@ public class CommentService {
                     .orElseThrow(() -> new RuntimeException("해당 ID의 제보 게시글을 찾을 수 없습니다."));
             comment.setLostFoundPost(lostFoundPost);
 
-            // After saving the comment, send a notification via WebSocket
-            notificationService.sendLostFoundPostNotification(lostFoundPost);
+            // 게시글 작성자와 댓글 작성자가 다른 경우에만 알림 전송
+            Member postAuthor = lostFoundPost.getAuthor();
+            if (!postAuthor.getId().equals(author.getId())) {
+                // 게시글 작성자에게만 개인 알림 전송
+                notificationService.sendPersonalLostFoundPostNotification(lostFoundPost, postAuthor, comment);
+            }
         }
 
         // 저장 후 강제 플러시

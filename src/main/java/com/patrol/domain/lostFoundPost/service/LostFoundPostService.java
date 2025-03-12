@@ -24,6 +24,8 @@ import com.patrol.global.storage.FileUploadResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -112,24 +114,29 @@ public class LostFoundPostService {
 
     @Transactional
     public void deleteLostFoundPost(Long postId, Member author) {
+        // 로깅을 위한 Logger 객체 생성
+        Logger logger = LoggerFactory.getLogger(getClass());
 
+        // 게시글 조회
         LostFoundPost lostFoundPost = lostFoundPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
+        // 게시글 작성자 확인
         if (!lostFoundPost.getAuthor().equals(author)) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
         }
-        List<Image> images = imageRepository.findAllByFoundId(postId);
 
-        for (Image image : images) {
-            if (image.getAnimalId() != null) {
-                image.setFoundId(null);
-                imageRepository.save(image);
-            } else {
-                imageHandlerService.deleteImage(image);
-            }
+        // 이미지 삭제 로직 제외 (아래 코드를 삭제하거나 주석 처리)
+        // 이미지를 삭제하지 않으므로 이 부분을 생략합니다.
+
+        // 게시글 삭제 (이미지 삭제와 상관없이 진행)
+        try {
+            lostFoundPostRepository.deleteById(postId);
+            logger.info("Post with ID {} deleted successfully", postId);
+        } catch (Exception e) {
+            // 게시글 삭제 오류 발생 시
+            logger.error("Error deleting post with ID {}: {}", postId, e.getMessage());
         }
-        lostFoundPostRepository.deleteById(postId);
     }
 
     @Transactional(readOnly = true)
