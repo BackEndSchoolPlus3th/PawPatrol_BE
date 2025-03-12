@@ -150,7 +150,6 @@ public class AnimalService {
         if (modiPetInfoRequest.getImageFile() != null && !modiPetInfoRequest.getImageFile().isEmpty()) {
             String folderPath = MEMBER_FOLDER_PATH_PREFIX + member.getId() + "/";
 
-            // 📌 새 이미지 업로드 후 성공한 경우에만 기존 이미지 삭제 (롤백 방지)
             List<Image> savedImages = imageHandlerService.uploadAndModifiedImages(
                     List.of(modiPetInfoRequest.getImageFile()),
                     folderPath,
@@ -158,27 +157,20 @@ public class AnimalService {
             );
 
             if (!savedImages.isEmpty()) {
-                // 기존 이미지 삭제는 업로드 성공 후에 수행
                 if (animal.getImageUrl() != null && !animal.getImageUrl().isEmpty()) {
                     imageHandlerService.deleteImageByPath(animal.getImageUrl());
                 }
-                // 🛠 업로드된 이미지 URL을 반려동물 정보에 반영
                 animal.setImageUrl(savedImages.get(0).getPath());
             }
         }
     }
 
-
-    // 내 반려동물 정보 삭제 (마이페이지)
     @Transactional
     public void deleteMyPetInfo(Member member, Long petId) {
         Animal animal = animalRepository.findById(petId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ANIMAL_NOT_FOUND));
 
-        // 반려동물 소유자 검증
         validateOwner(animal, member);
-
-        // 반려동물 이미지 삭제
         if (animal.getImageUrl() != null && !animal.getImageUrl().isEmpty()) {
 
             String objectKey = animal.getImageUrl().replace("https://kr.object.ncloudstorage.com/paw-patrol/", "");
@@ -189,7 +181,6 @@ public class AnimalService {
         animalRepository.delete(animal);
     }
 
-    // 반려동물 소유자 검증
     public void validateOwner(Animal animal, Member member) {
         if (!Objects.equals(animal.getOwner().getId(), member.getId())) {
             throw new CustomException(ErrorCode.PET_OWNER_MISMATCH);
@@ -197,9 +188,8 @@ public class AnimalService {
     }
 
     public List<PetResponseDto> getAllAnimals() {
-        // Fetch all animals from the repository and convert to PetResponseDto
         return animalRepository.findAll().stream()
-                .map(PetResponseDto::new)  // Convert Animal to PetResponseDto using the constructor
-                .collect(Collectors.toList());  // Collect them into a List
+                .map(PetResponseDto::new)
+                .collect(Collectors.toList());
     }
 }

@@ -174,7 +174,6 @@ public class ImageService {
             throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
         }
 
-        // 이미지 삭제
         try {
             String fullPath = image.getPath();
             String key = extractKeyFromUrl(fullPath);
@@ -195,9 +194,7 @@ public class ImageService {
 
     private String extractKeyFromUrl(String url) {
         try {
-            // 예: https://kr.object.ncloudstorage.com/paw-patrol/protection/sample27.jpg
-            // 에서 "protection/sample27.jpg" 추출
-            int bucketEndIndex = url.indexOf(bucketName) + bucketName.length() + 1; // +1은 '/' 문자 포함
+            int bucketEndIndex = url.indexOf(bucketName) + bucketName.length() + 1;
             return url.substring(bucketEndIndex);
         } catch (Exception e) {
             log.error("URL에서 키 추출 실패: {}, 에러: {}", url, e.getMessage());

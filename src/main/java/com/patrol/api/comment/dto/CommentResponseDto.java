@@ -8,15 +8,15 @@ import lombok.Getter;
 public class CommentResponseDto {
     private Long id;
     private String content;
-    private String nickname;  // ✅ 추가된 필드 (작성자 닉네임)
+    private String nickname;
     private Long lostFoundPostId;
-    private Long userId;  // ✅ 추가된 필드 (작성자의 ID)
+    private Long userId;
 
     public CommentResponseDto(Comment comment) {
         this.id = comment.getId();
-        this.userId = comment.getAuthor().getId();  // ✅ 유저 ID 추가
+        this.userId = (comment.getAuthor() != null) ? comment.getAuthor().getId() : null;
         this.content = comment.getContent();
-        this.nickname = comment.getAuthor().getNickname();  // ✅ Member에서 nickname 가져오기
+        this.nickname = comment.getAuthor().getNickname() != null ? comment.getAuthor().getNickname() : null;
         this.lostFoundPostId = comment.getLostFoundPost() != null ? comment.getLostFoundPost().getId() : null;
     }
 }

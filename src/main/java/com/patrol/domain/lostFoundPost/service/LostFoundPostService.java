@@ -51,7 +51,7 @@ public class LostFoundPostService {
     private static final String FOLDER_PATH = "lostfoundpost/";
 
     @Transactional
-    public LostFoundPostResponseDto createLostFoundPost(LostFoundPostRequestDto requestDto, Long petId, Member author, List<MultipartFile> images) {
+    public LostFoundPostResponseDto createLostFoundPost(LostFoundPostRequestDto requestDto, Member author, List<MultipartFile> images) {
         Animal pet = null;
 
         if (requestDto.getPetId() != null) {
@@ -161,7 +161,6 @@ public class LostFoundPostService {
         return posts.map(LostFoundPostResponseDto::from);
     }
 
-    // 내가 작성한 게시글 리스트 불러오기
     @Transactional(readOnly = true)
     public Page<MyPostsResponse> myPosts(Member member, Pageable pageable) {
         Page<LostFoundPost> postsPage = lostFoundPostRepository.findByAuthorId(member.getId(), pageable);
@@ -176,7 +175,6 @@ public class LostFoundPostService {
         ));
     }
 
-    // 마이페이지 나의 신고글 리스트 불러오기
     @Transactional(readOnly = true)
     public Page<MyPostsResponse> myReportPosts(Member member, Pageable pageable) {
         Page<LostFoundPost> reportPosts = lostFoundPostRepository.findByAuthorIdAndStatusIn(
@@ -195,7 +193,6 @@ public class LostFoundPostService {
         ));
     }
 
-    // 마이페이지 나의 제보글 리스트 불러오기
     @Transactional(readOnly = true)
     public Page<MyPostsResponse> myWitnessPosts(Member member, Pageable pageable) {
         Page<LostFoundPost> witnessPosts = lostFoundPostRepository.findByAuthorIdAndStatusIn(

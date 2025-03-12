@@ -7,7 +7,5 @@ import lombok.Setter;
 @Setter
 public class CommentRequestDto {
     private String content;
-
     private Long lostFoundPostId;
 }
-//수정

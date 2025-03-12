@@ -48,10 +48,12 @@ public class NotProd {
         SignupRequest request1 = new SignupRequest("test1@test.com", "1234", "강남", "서울");
         SignupRequest request2 = new SignupRequest("test2@test.com", "1234", "홍길동", "경기도");
         SignupRequest request3 = new SignupRequest("test3@test.com", "1234", "제펫토", "강원도");
+        SignupRequest request4 = new SignupRequest("test4@test.com", "1234", "AI알림이", "서울");
 
         Member member1 = authService.signUp(request1);
         Member member2 = authService.signUp(request2);
         Member member3 = authService.signUp(request3);
+        Member member4 = authService.signUp(request4);
 
         long member3Id = member3.getId();
 

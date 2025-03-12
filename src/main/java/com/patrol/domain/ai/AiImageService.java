@@ -6,6 +6,7 @@ import com.patrol.domain.image.entity.Image;
 import com.patrol.domain.image.repository.ImageRepository;
 import com.patrol.domain.lostFoundPost.entity.LostFoundPost;
 import com.patrol.domain.lostFoundPost.repository.LostFoundPostRepository;
+import com.patrol.domain.member.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -25,15 +26,16 @@ public class AiImageService {
     private final CommentRepository commentRepository;
     private final ImageRepository imageRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final MemberRepository memberRepository;
 
     @Transactional
     public void saveAiImages (List<MultipartFile> images, Long foundId, LostFoundPost lostFoundPost) {
         Image firstImage = null;
 
         if (images != null && images.size() == 1) {
-            firstImage = imageRepository.findByFoundId(foundId); // 단일 이미지 조회
+            firstImage = imageRepository.findByFoundId(foundId);
         } else {
-            firstImage = imageRepository.findFirstByFoundIdOrderByCreatedAtAsc(foundId).orElse(null); // 가장 오래된 이미지 조회
+            firstImage = imageRepository.findFirstByFoundIdOrderByCreatedAtAsc(foundId).orElse(null);
         }
 
         AiImage aiImage = null;
@@ -69,10 +71,9 @@ public class AiImageService {
                 findWantPost.getContent(), imageUrl, similarity
         );
 
-        // 3️⃣ AI 알림 사용자 설정 (시스템 계정 or NULL)
         Comment comment = Comment.builder()
                 .lostFoundPost(targetPost)
-                .author(null)  // 🔹 추후 AI 시스템 계정으로 변경 가능
+                .author(memberRepository.getMemberById(4L))
                 .content(commentContent)
                 .build();
 

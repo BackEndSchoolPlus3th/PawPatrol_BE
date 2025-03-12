@@ -36,13 +36,12 @@ public class ImageProcessingService {
         try {
             log.info("📩 Kafka 메시지 수신 (유사도 분석 - {} 기준): imageId={}", targetStatus, imageId);
 
-            // 1️⃣ 분석할 새 이미지 조회
             AiImage newImage = aiImageRepository.findById(imageId)
                     .orElseThrow(() -> new RuntimeException("🚨 이미지 ID " + imageId + "를 찾을 수 없음"));
 
             if (newImage.getEmbedding() == null) {
                 log.warn("🚨 임베딩이 존재하지 않는 이미지입니다: imageId={}", imageId);
-                return; // 임베딩이 없는 경우 비교하지 않음
+                return;
             }
 
             PostStatus oppositeStatus = (targetStatus == PostStatus.FINDING) ? PostStatus.SIGHTED : PostStatus.FINDING;
@@ -52,11 +51,9 @@ public class ImageProcessingService {
                             newImage.getLostFoundPost().getLongitude(),
                             10.0 // 반경 10km 제한
                     ).stream()
-                    .filter(img -> img.getStatus() == oppositeStatus)  // 반대되는 상태 필터링
+                    .filter(img -> img.getStatus() == oppositeStatus)
                     .toList();
 
-
-            // ✅ 임베딩이 완료된 이미지만 필터링
             nearbyTargetImages = nearbyTargetImages.stream()
                     .filter(img -> img.getEmbedding() != null)
                     .toList();
