@@ -26,6 +26,7 @@ public class ImageEventConsumer {
     @KafkaListener(topics = "image-events", groupId = "image-embedding-processor")
     public void processImageEvent(@Payload String message) throws IOException {
         try {
+            log.info("🔍 Consumer received message: {}", message);
             log.info("🔍🔍🔍🔍🔍 Counsumer에 도착!!!!!!!!!!!!!!!!!!!!!!!!!");
             Map<String, String> event = objectMapper.readValue(message, new TypeReference<>() {});
             Long imageId = Long.parseLong(event.get("imageId"));
