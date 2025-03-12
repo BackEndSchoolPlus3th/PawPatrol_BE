@@ -67,7 +67,9 @@ public class LostFoundPostService {
             List<Image> petImages = imageRepository.findByPath(pet.getImageUrl());
             if (!petImages.isEmpty()) {
                 for(Image petImage : petImages) {
-                    updateImageWithLostFoundPost(petImage, lostFoundPost);
+                    if (petImage.getStatus() != PostStatus.SIGHTED) { // SIGHTED 상태가 아닌 경우만 업데이트
+                        updateImageWithLostFoundPost(petImage, lostFoundPost);
+                    }
                 }
             }
         }
