@@ -23,7 +23,10 @@ public class ImageEventConsumer {
     private final AiClient aiClient;
     private final ObjectMapper objectMapper;
 
-    @KafkaListener(topics = "image-events", groupId = "image-embedding-processor")
+    @KafkaListener(
+            topics = "image-events",
+            groupId = "${spring.kafka.groups.ai-group-id}"
+    )
     public void processImageEvent(@Payload String message) throws IOException {
         try {
             log.info("🔍 Consumer received message: {}", message);

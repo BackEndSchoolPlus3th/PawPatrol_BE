@@ -13,15 +13,17 @@ spring:
   kafka:
     bootstrap-servers: 43.201.55.18:19092,10.0.1.162:19092
     consumer:
-      group-id: image-embedding-processor
+      enable-auto-commit: false
       auto-offset-reset: earliest
-    producer:
-      retries: 3
     listener:
       concurrency: 3
+    groups:
+      ai-group-id: ai-image-processor    # ✅ AI 이미지 전용 Consumer
+      notification-group-id: push-notification-group  # ✅ 알림 전용 Consumer
   profiles:
     active: dev
     include: secret
+
 
   autoconfigure:
     exclude:
