@@ -21,5 +21,7 @@ public interface AiImageRepository extends JpaRepository<AiImage, Long> {
             @Param("lng") double longitude,
             @Param("radius") double radius);
 
-    boolean existsByEmbeddingIsNotNullOrFeaturesIsNotNullAndPath (String path);
+    @Query("SELECT COUNT(a) > 0 FROM AiImage a WHERE (a.embedding IS NOT NULL OR a.features IS NOT NULL) AND a.id = :id")
+    boolean existsByEmbeddingIsNotNullOrFeaturesIsNotNullAndId(@Param("id") Long id);
+
 }

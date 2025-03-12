@@ -17,9 +17,9 @@ public class AiImageServiceListener {
     public void onAiImageSaved(AiImageSavedEvent event) {
         AiImage image = event.getAiImage();
 
-        if (!aiImageRepository.existsByEmbeddingIsNotNullOrFeaturesIsNotNullAndPath(image.getPath())
+        if (!aiImageRepository.existsByEmbeddingIsNotNullOrFeaturesIsNotNullAndId(image.getId())
                 || image.getStatus() == PostStatus.SIGHTED) {
-            log.info("📌 SIGHTED 상태의 임베딩되지 않은 이미지 발견. Kafka 이벤트 전송: {}", image.getPath());
+            log.info("🔍 AI 서버에 이미지 분석 요청: imageId={}", image.getId());
             imageEventProducer.sendImageEvent(image.getId(), image.getPath());
         } else {
             log.info("✅ 이미 임베딩된 이미지: {}", image.getId());
