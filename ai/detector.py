@@ -8,7 +8,7 @@ from PIL import Image
 from torchvision import transforms
 from imutils import face_utils
 import clip
-
+from io import BytesIO
 # =====================
 # 모델 및 전처리 초기화
 # =====================
@@ -63,9 +63,9 @@ def extract_face_embedding(image, face_location, padding=50):
     """얼굴 영역에서 CLIP 임베딩 추출"""
     top, right, bottom, left = face_location
     face_img = image[
-        max(0, top - padding): min(image.shape[0], bottom + padding),
-        max(0, left - padding): min(image.shape[1], right + padding)
-    ]
+               max(0, top - padding): min(image.shape[0], bottom + padding),
+               max(0, left - padding): min(image.shape[1], right + padding)
+               ]
     face_pil = Image.fromarray(cv2.cvtColor(face_img, cv2.COLOR_BGR2RGB))
     face_tensor = transform(face_pil).unsqueeze(0).to(device)
     with torch.no_grad():
@@ -78,18 +78,18 @@ def extract_landmark_features(shape, image, gray_image):
     """랜드마크 특징 추출 (오류 상황을 고려하여 robust하게 처리)"""
     coords = face_utils.shape_to_np(shape)
     features = []
-    
+
     if coords.size == 0:
         return np.array(features)
-    
+
     n_landmarks = coords.shape[0]
-    
+
     # 1. 얼굴 윤곽 특징: aspect ratio (division by zero 방지)
     face_width = np.max(coords[:, 0]) - np.min(coords[:, 0])
     face_height = np.max(coords[:, 1]) - np.min(coords[:, 1])
     aspect_ratio = face_width / face_height if face_height != 0 else 0
     features.append(aspect_ratio)
-    
+
     # 2. 얼굴 대칭성
     mid_x = np.mean(coords[:, 0])
     left_points = coords[coords[:, 0] < mid_x]
@@ -99,7 +99,7 @@ def extract_landmark_features(shape, image, gray_image):
         right_mean = np.mean(right_points, axis=0)
         symmetry = np.linalg.norm(left_mean - right_mean)
         features.append(symmetry)
-    
+
     # 3. 눈 특징 (전체 랜드마크의 1/3씩을 눈 영역으로 가정)
     third = n_landmarks // 3
     if third > 0:
@@ -110,7 +110,7 @@ def extract_landmark_features(shape, image, gray_image):
             right_eye_width = np.max(right_eye_points[:, 0]) - np.min(right_eye_points[:, 0])
             eye_ratio = left_eye_width / right_eye_width if right_eye_width != 0 else 0
             features.append(eye_ratio)
-            
+
             for eye_points in [left_eye_points, right_eye_points]:
                 x1, y1 = np.min(eye_points, axis=0)
                 x2, y2 = np.max(eye_points, axis=0)
@@ -122,7 +122,7 @@ def extract_landmark_features(shape, image, gray_image):
                             float(np.std(eye_region)),
                             float(np.max(eye_region) - np.min(eye_region))
                         ])
-    
+
     # 4. 코 특징: 충분한 랜드마크가 있을 때만 처리
     if n_landmarks >= 18:
         nose_points = coords[12:18]
@@ -131,7 +131,7 @@ def extract_landmark_features(shape, image, gray_image):
             nose_height = np.max(nose_points[:, 1]) - np.min(nose_points[:, 1])
             nose_ratio = nose_width / nose_height if nose_height != 0 else 0
             features.append(nose_ratio)
-            
+
             x1, y1 = np.min(nose_points, axis=0)
             x2, y2 = np.max(nose_points, axis=0)
             if x2 > x1 and y2 > y1:
@@ -142,7 +142,7 @@ def extract_landmark_features(shape, image, gray_image):
                         float(np.std(nose_region)),
                         float(np.max(nose_region) - np.min(nose_region))
                     ])
-    
+
     # 5. 윤곽선 곡률: 인접 점들 사이의 각도 (0으로 나누는 경우 방지)
     for i in range(1, n_landmarks - 1):
         p1, p2, p3 = coords[i - 1], coords[i], coords[i + 1]
@@ -152,7 +152,7 @@ def extract_landmark_features(shape, image, gray_image):
         if norm_product > 0:
             angle = np.arccos(np.clip(np.dot(v1, v2) / norm_product, -1.0, 1.0))
             features.append(angle)
-    
+
     # 6. 텍스처 패턴: 각 랜드마크 주변의 간단한 HOG 특징
     patch_size = 7
     for (x, y) in coords.astype(int):
@@ -171,7 +171,7 @@ def extract_landmark_features(shape, image, gray_image):
                 float(np.mean(ang)),
                 float(np.std(ang))
             ])
-    
+
     # 7. 컬러 특징: 각 랜드마크 주변의 BGR 채널 평균/표준편차
     for (x, y) in coords.astype(int):
         x_start = max(0, x - 3)
@@ -185,7 +185,7 @@ def extract_landmark_features(shape, image, gray_image):
                     float(np.mean(patch[:, :, i])),
                     float(np.std(patch[:, :, i]))
                 ])
-    
+
     return np.array(features)
 
 def draw_annotations(image, face, shape, scores):
@@ -240,7 +240,7 @@ def compare_faces(img1, img2, display=True):
     gray2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
     faces1 = face_locations(gray1)
     faces2 = face_locations(gray2)
-    
+
     if not faces1 or not faces2:
         print("동물의 얼굴을 감지하지 못했습니다!!")
         similarity = compare_embeddings_only(img1, img2)
@@ -268,21 +268,21 @@ def compare_faces(img1, img2, display=True):
     # dlib.rectangle 생성 (dlib.rectangle(left, top, right, bottom))
     face1_rect = dlib.rectangle(face1[3], face1[0], face1[1], face1[2])
     face2_rect = dlib.rectangle(face2[3], face2[0], face2[1], face2[2])
-    
+
     shape1 = predictor(gray1, face1_rect)
     shape2 = predictor(gray2, face2_rect)
-    
+
     # 랜드마크 특징 추출 (컬러와 그레이스케일 이미지 모두 사용)
     lmk_features1 = extract_landmark_features(shape1, img1, gray1)
     lmk_features2 = extract_landmark_features(shape2, img2, gray2)
-    
+
     # CLIP 임베딩 추출
     embedding1 = extract_face_embedding(img1, face1)
     embedding2 = extract_face_embedding(img2, face2)
-    
+
     # 임베딩 유사도 (코사인 유사도)
     emb_sim = torch.nn.functional.cosine_similarity(embedding1, embedding2).item()
-    
+
     # 랜드마크 특징 유사도 (0 division 방지)
     norm1 = np.linalg.norm(lmk_features1)
     norm2 = np.linalg.norm(lmk_features2)
@@ -290,7 +290,7 @@ def compare_faces(img1, img2, display=True):
         lmk_sim = 0
     else:
         lmk_sim = 1 - (np.linalg.norm(lmk_features1 - lmk_features2) / (norm1 + norm2))
-    
+
     # 가중치 조정 (상황에 따라 조정 가능)
     face_detection_confidence = len(faces1) * len(faces2)  # 얼굴 감지된 개수로 신뢰도 설정
     if face_detection_confidence == 0:
@@ -304,21 +304,21 @@ def compare_faces(img1, img2, display=True):
     result_img1 = img1.copy()
     result_img2 = img2.copy()
     scores = {'embedding': emb_sim, 'landmark': lmk_sim, 'combined': combine_score}
-    
+
     draw_annotations(result_img1, face1, shape1, scores)
     draw_annotations(result_img2, face2, shape2, scores)
-    
+
     # 시각화를 위한 얼굴 영역 추출 (패딩 적용)
     vis_padding = 50
     face1_img = img1[
-        max(0, face1[0] - vis_padding):min(img1.shape[0], face1[2] + vis_padding),
-        max(0, face1[3] - vis_padding):min(img1.shape[1], face1[1] + vis_padding)
-    ]
+                max(0, face1[0] - vis_padding):min(img1.shape[0], face1[2] + vis_padding),
+                max(0, face1[3] - vis_padding):min(img1.shape[1], face1[1] + vis_padding)
+                ]
     face2_img = img2[
-        max(0, face2[0] - vis_padding):min(img2.shape[0], face2[2] + vis_padding),
-        max(0, face2[3] - vis_padding):min(img2.shape[1], face2[1] + vis_padding)
-    ]
-    
+                max(0, face2[0] - vis_padding):min(img2.shape[0], face2[2] + vis_padding),
+                max(0, face2[3] - vis_padding):min(img2.shape[1], face2[1] + vis_padding)
+                ]
+
     # display=True인 경우에만 matplotlib 시각화 실행
     if display:
         plt.figure(figsize=(15, 8))
@@ -326,12 +326,12 @@ def compare_faces(img1, img2, display=True):
         plt.imshow(cv2.cvtColor(result_img1, cv2.COLOR_BGR2RGB))
         plt.title('Image 1')
         plt.axis('off')
-        
+
         plt.subplot(232)
         plt.imshow(cv2.cvtColor(result_img2, cv2.COLOR_BGR2RGB))
         plt.title('Image 2')
         plt.axis('off')
-        
+
         plt.subplot(233)
         plt.text(0.5, 0.6, 'Similarity Scores:',
                  horizontalalignment='center',
@@ -343,20 +343,20 @@ def compare_faces(img1, img2, display=True):
                  verticalalignment='center',
                  fontsize=10, transform=plt.gca().transAxes)
         plt.axis('off')
-        
+
         plt.subplot(235)
         plt.imshow(cv2.cvtColor(face1_img, cv2.COLOR_BGR2RGB))
         plt.title('Face 1')
         plt.axis('off')
-        
+
         plt.subplot(236)
         plt.imshow(cv2.cvtColor(face2_img, cv2.COLOR_BGR2RGB))
         plt.title('Face 2')
         plt.axis('off')
-        
+
         plt.tight_layout()
         plt.show()
-    
+
     return result_img1, result_img2, combine_score
 
 def compare_embeddings_and_features(embedding1, features1, embedding2, features2):
@@ -391,10 +391,10 @@ def compare_embeddings_and_features(embedding1, features1, embedding2, features2
 if __name__ == '__main__':
     img1_path = 'examples/dog5.jpg'
     img2_path = 'examples/dog5_1.jpg'
-    
+
     img1 = cv2.imread(img1_path)
     img2 = cv2.imread(img2_path)
-    
+
     if img1 is None or img2 is None:
         print("이미지 파일을 불러올 수 없습니다.")
     else:
@@ -405,12 +405,12 @@ if __name__ == '__main__':
             plt.imshow(cv2.cvtColor(res1, cv2.COLOR_BGR2RGB))
             plt.title('Result Image 1')
             plt.axis('off')
-            
+
             plt.subplot(122)
             plt.imshow(cv2.cvtColor(res2, cv2.COLOR_BGR2RGB))
             plt.title('Result Image 2')
             plt.axis('off')
-            
+
             plt.suptitle(f'Combined Similarity: {similarity:.2f}', fontsize=16)
             plt.show()
 
@@ -420,31 +420,75 @@ def image_vector(img1):
     이미지에서 얼굴(강아지 머리)을 감지하고 임베딩 및 특징을 추출합니다.
     얼굴이 감지되지 않을 경우 이미지 전체에 대한 임베딩을 생성합니다.
     """
-    gray1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
-    faces1 = face_locations(gray1)
+    try:
+        # 모든 이미지를 먼저 3채널 BGR로 확실하게 변환
+        if len(img1.shape) == 4:  # RGBA
+            img1 = cv2.cvtColor(img1, cv2.COLOR_RGBA2BGR)
+        elif len(img1.shape) == 2:  # 그레이스케일
+            img1 = cv2.cvtColor(img1, cv2.COLOR_GRAY2BGR)
 
-    if len(faces1) == 0:
-        # 얼굴이 감지되지 않으면 이미지 전체를 사용
-        print("얼굴을 감지하지 못했습니다. 이미지 전체를 사용합니다.")
+        # 명시적으로 새로운 복사본을 만들어 메모리 문제 방지
+        img1_copy = img1.copy()
 
-        # 이미지 전체에 대한 CLIP 임베딩 추출
-        img_pil = Image.fromarray(cv2.cvtColor(img1, cv2.COLOR_BGR2RGB))
-        img_tensor = transform(img_pil).unsqueeze(0).to(device)
+        # 8비트 타입 강제 변환
+        if img1_copy.dtype != np.uint8:
+            img1_copy = (img1_copy * 255 / img1_copy.max()).astype(np.uint8)
 
-        with torch.no_grad():
-            embedding1 = clip_model.encode_image(img_tensor)
+        # 명시적인 그레이스케일 변환
+        gray1 = cv2.cvtColor(img1_copy, cv2.COLOR_BGR2GRAY)
 
-        # 코사인 유사도 계산을 위해 정규화
-        embedding1 = embedding1 / embedding1.norm(dim=-1, keepdim=True)
+        # 얼굴 감지 시도
+        try:
+            faces1 = face_locations(gray1)
+        except Exception as e:
+            # 얼굴 감지에 실패하면 즉시 이미지 전체 임베딩으로 전환
+            print(f"얼굴 감지 오류 발생, 전체 이미지 임베딩 사용: {e}")
+            img_pil = Image.fromarray(cv2.cvtColor(img1_copy, cv2.COLOR_BGR2RGB))
+            img_tensor = transform(img_pil).unsqueeze(0).to(device)
+            with torch.no_grad():
+                embedding1 = clip_model.encode_image(img_tensor)
+            embedding1 = embedding1 / embedding1.norm(dim=-1, keepdim=True)
+            return np.array([]), embedding1
 
-        # 임베딩만 반환하고 랜드마크 특징은 빈 배열로 설정
-        return np.array([]), embedding1
+        # 이하 기존 코드와 동일
+        if len(faces1) == 0:
+            # 얼굴이 감지되지 않으면 이미지 전체를 사용
+            print("얼굴을 감지하지 못했습니다. 이미지 전체를 사용합니다.")
 
-    # 얼굴이 감지된 경우 기존 코드 실행
-    face1 = faces1[0]
-    face1_rect = dlib.rectangle(face1[3], face1[0], face1[1], face1[2])
-    shape1 = predictor(gray1, face1_rect)
-    lmk_features1 = extract_landmark_features(shape1, img1, gray1)
-    embedding1 = extract_face_embedding(img1, face1)
+            # 이미지 전체에 대한 CLIP 임베딩 추출
+            img_pil = Image.fromarray(cv2.cvtColor(img1_copy, cv2.COLOR_BGR2RGB))
+            img_tensor = transform(img_pil).unsqueeze(0).to(device)
 
-    return lmk_features1, embedding1
+            with torch.no_grad():
+                embedding1 = clip_model.encode_image(img_tensor)
+
+            # 코사인 유사도 계산을 위해 정규화
+            embedding1 = embedding1 / embedding1.norm(dim=-1, keepdim=True)
+
+            # 임베딩만 반환하고 랜드마크 특징은 빈 배열로 설정
+            return np.array([]), embedding1
+
+        # 얼굴이 감지된 경우 기존 코드 실행
+        face1 = faces1[0]
+        face1_rect = dlib.rectangle(face1[3], face1[0], face1[1], face1[2])
+        shape1 = predictor(gray1, face1_rect)
+        lmk_features1 = extract_landmark_features(shape1, img1_copy, gray1)
+        embedding1 = extract_face_embedding(img1_copy, face1)
+
+        return lmk_features1, embedding1
+
+    except Exception as e:
+        # 어떤 문제든 발생했다면 이미지 전체 임베딩으로 안전하게 대체
+        print(f"예상치 못한 오류 발생, 대체 임베딩 사용: {e}")
+        try:
+            # PIL로 변환하여 처리 (최후의 보루)
+            img_pil = Image.open(BytesIO(cv2.imencode('.png', img1)[1].tobytes())).convert('RGB')
+            img_tensor = transform(img_pil).unsqueeze(0).to(device)
+            with torch.no_grad():
+                embedding1 = clip_model.encode_image(img_tensor)
+            embedding1 = embedding1 / embedding1.norm(dim=-1, keepdim=True)
+            return np.array([]), embedding1
+        except:
+            # 정말 아무것도 안되면 빈 값 반환
+            print("치명적 오류: 이미지 처리 완전히 실패")
+            return np.array([]), None

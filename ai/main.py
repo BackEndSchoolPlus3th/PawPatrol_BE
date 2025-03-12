@@ -59,18 +59,52 @@ def extract_embedding_from_url(url: str):
         if response.status_code != 200:
             return {"embedding": [], "features": [], "success": False, "error": "이미지 요청 실패"}
 
-        image_pil = Image.open(io.BytesIO(response.content))
+        # 이미지 바이트를 버퍼로 변환
+        image_bytes = io.BytesIO(response.content)
+
+        # PIL 이미지로 로드
+        image_pil = Image.open(image_bytes)
+
+        # 이미지 모드 확인 및 변환
+        if image_pil.mode != 'RGB':
+            print(f"이미지 모드 변환: {image_pil.mode} -> RGB")
+            image_pil = image_pil.convert('RGB')
+
+        # RGB 이미지를 numpy 배열로 변환
         image_cv = np.array(image_pil)
 
-        # ✅ 로드한 이미지가 정상인지 로그 출력
-        print(f"이미지 로드 성공: {url}, shape={image_cv.shape}")
+        print(f"이미지 로드 성공: {url}, shape={image_cv.shape}, dtype={image_cv.dtype}")
 
+        # 이미지가 8비트가 아니면 변환
+        if image_cv.dtype != np.uint8:
+            print(f"이미지 데이터 타입 변환: {image_cv.dtype} -> uint8")
+            if image_cv.dtype == np.uint16:
+                image_cv = (image_cv / 256).astype(np.uint8)
+            else:
+                image_cv = image_cv.astype(np.uint8)
+
+        # 차원 확인 및 변환 (2D -> 3D)
         if image_cv.ndim == 2:
+            print("그레이스케일 이미지를 RGB로 변환")
             image_cv = cv2.cvtColor(image_cv, cv2.COLOR_GRAY2RGB)
+
+        # 채널 확인 및 변환 (RGBA -> RGB)
+        elif image_cv.shape[2] == 4:
+            print("RGBA 이미지를 RGB로 변환")
+            image_cv = cv2.cvtColor(image_cv, cv2.COLOR_RGBA2RGB)
+
+        # 임베딩 추출 전 이미지 형식 최종 확인
+        print(f"최종 이미지 형식: shape={image_cv.shape}, dtype={image_cv.dtype}")
 
         # ✅ 임베딩 추출
         with torch.no_grad():
-            feature, embedding = detector.image_vector(image_cv)
+            try:
+                feature, embedding = detector.image_vector(image_cv)
+            except Exception as e:
+                print(f"❌ detector.image_vector 호출 중 오류: {e}")
+                # 이미지 복사본 만들기 (메모리 연속성 보장)
+                image_cv_copy = np.ascontiguousarray(image_cv)
+                feature, embedding = detector.image_vector(image_cv_copy)
 
         # ✅ 임베딩이 None이면 오류 반환
         if embedding is None:
@@ -85,8 +119,9 @@ def extract_embedding_from_url(url: str):
 
     except Exception as e:
         print(f"❌ 이미지 로드 또는 임베딩 추출 실패: {e}")
+        import traceback
+        traceback.print_exc()  # 상세 오류 추적
         return {"embedding": [], "features": [], "success": False, "error": f"임베딩 추출 실패: {str(e)}"}
-
 
 # ================ #
 # FINDING vs SIGHTED 비교 API #
@@ -219,21 +254,30 @@ async def compare_embeddings(data: CompareEmbeddingsRequest):
 @app.post("/extract-embedding-from-url")
 async def extract_embedding_from_url_api(request: ImageRequest):
     """ URL에서 임베딩을 추출하는 API """
-
     try:
         if not request.image_url:
             raise HTTPException(status_code=400, detail="image_url이 제공되지 않았습니다.")
+
+        print(f"임베딩 추출 요청 URL: {request.image_url}")
 
         # ✅ FastAPI는 JSON 요청을 받도록 변경
         result = extract_embedding_from_url(request.image_url)
 
         if not result["success"]:
-            raise HTTPException(status_code=500, detail="임베딩 생성 실패")
+            error_msg = result.get("error", "임베딩 생성 실패")
+            print(f"❌ 임베딩 추출 실패: {error_msg}")
+            raise HTTPException(status_code=500, detail=error_msg)
 
+        print(f"✅ 임베딩 추출 성공: 임베딩 길이={len(result['embedding'])}, 특징 길이={len(result['features'])}")
         return result
+    except HTTPException as he:
+        # 이미 생성된 HTTP 예외는 그대로 전달
+        raise he
     except Exception as e:
+        print(f"❌ 예상치 못한 오류: {str(e)}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"현재 URL 임베딩 추출 중 오류 발생: {str(e)}")
-
 # ================ #
 # FastAPI 실행 #
 # ================ #
