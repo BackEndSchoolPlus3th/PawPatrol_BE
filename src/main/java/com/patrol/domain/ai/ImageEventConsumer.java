@@ -22,6 +22,7 @@ public class ImageEventConsumer {
     private final AiImageRepository aiImageRepository;
     private final AiClient aiClient;
     private final ObjectMapper objectMapper;
+    private final ImageProcessingService imageProcessingService;
 
     @KafkaListener(
             topics = "image-events",
@@ -44,7 +45,16 @@ public class ImageEventConsumer {
                 throw new RuntimeException("🚨 임베딩 추출 실패: imageId=" + imageId);
             }
 
-            saveEmbeddingData(embeddingData, imageId);
+            PostStatus postStatus = saveEmbeddingData(embeddingData, imageId);
+
+            if (postStatus == PostStatus.FINDING) {
+                log.info("📩 FINDING 이미지 유사도 분석 요청: imageId={}", imageId);
+                imageProcessingService.asyncProcessImageFind(imageId);
+            } else if (postStatus == PostStatus.SIGHTED) {
+                log.info("📩 SIGHTED 이미지 유사도 분석 요청: imageId={}", imageId);
+                imageProcessingService.asyncProcessSightedImage(imageId);
+            }
+
 
         } catch (Exception e) {
             log.error("🚨 Kafka 메시지 처리 중 오류 발생: {}", e.getMessage(), e);
@@ -52,7 +62,7 @@ public class ImageEventConsumer {
     }
 
     @Transactional
-    protected void saveEmbeddingData (Map<String, String> embeddingData, Long imageId) {
+    protected PostStatus saveEmbeddingData (Map<String, String> embeddingData, Long imageId) {
         AiImage aiImage = aiImageRepository.findById(imageId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID의 이미지가 존재하지 않음: " + imageId));
 
@@ -60,6 +70,7 @@ public class ImageEventConsumer {
         aiImage.setFeatures(embeddingData.get("features"));
         aiImageRepository.save(aiImage);
         log.info("✅ 임베딩 데이터 저장 완료: imageId={}", imageId);
+        return aiImage.getStatus();
     }
 
 }
