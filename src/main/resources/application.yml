@@ -98,11 +98,11 @@ logging:
   level:
     com.patrol: DEBUG
     org.hibernate.SQL: ERROR  # SQL 로그는 너무 많으므로 ERROR 유지
-    org.apache.kafka.clients: INFO  # Kafka 전체를 INFO로 조절
-    org.apache.kafka.clients.consumer: DEBUG  # 필요한 경우만 DEBUG 유지
-    org.apache.kafka.clients.producer: DEBUG
+    org.apache.kafka.clients: ERROR  # Kafka 전체를 INFO로 조절
+    org.apache.kafka.clients.consumer: ERROR  # 필요한 경우만 DEBUG 유지
+    org.apache.kafka.clients.producer: ERROR
     springframework:
-      kafka: INFO  # Spring Kafka 로그도 INFO로 조절
+      kafka: ERROR  # Spring Kafka 로그도 INFO로 조절
 
 
 springdoc:
