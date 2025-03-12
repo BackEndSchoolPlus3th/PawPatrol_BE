@@ -95,8 +95,11 @@ logging:
   level:
     com.patrol: DEBUG
     org.hibernate.SQL: ERROR
-    org.apache.kafka.clients: ERROR
-    kafka: ERROR
+    org.apache.kafka.clients: DEBUG
+    springframework:
+      kafka: DEBUG
+      apache:
+        kafka: DEBUG
 
 springdoc:
   api-docs:

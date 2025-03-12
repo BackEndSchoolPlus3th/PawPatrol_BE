@@ -28,6 +28,8 @@ public class ImageEventConsumer {
         try {
             log.info("🔍 Consumer received message: {}", message);
             log.info("🔍🔍🔍🔍🔍 Counsumer에 도착!!!!!!!!!!!!!!!!!!!!!!!!!");
+            log.error("🚨🚨🚨 KAFKA LISTENER ACTIVATED 🚨🚨🚨");
+            log.error("🚨 Received message: {}", message);
             Map<String, String> event = objectMapper.readValue(message, new TypeReference<>() {});
             Long imageId = Long.parseLong(event.get("imageId"));
             String imageUrl = event.get("imageUrl");
