@@ -166,7 +166,7 @@ public class ImageHandlerServiceImpl implements ImageHandlerService {
             // 스토리지에서 파일 삭제
             ncpObjectStorageService.delete(path);
             // DB에서 해당 경로의 이미지 찾아서 삭제
-            Image image = (Image) imageRepository.findByPath(path);
+            Image image = imageRepository.findByPath(path);
             if (image != null) {
                 imageRepository.delete(image);
             }

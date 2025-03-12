@@ -26,8 +26,6 @@ public class CommentService {
     public CommentResponseDto createComment(CommentRequestDto requestDto, Member author) {
         Comment comment = new Comment();
         comment.setContent(requestDto.getContent());
-
-        // ✅ 로그인한 사용자 정보 설정
         comment.setAuthor(author);
 
         // FindPost 조회 후 설정
@@ -35,8 +33,6 @@ public class CommentService {
             LostFoundPost lostFoundPost = lostFoundPostRepository.findById(requestDto.getLostFoundPostId())
                     .orElseThrow(() -> new RuntimeException("해당 ID의 제보 게시글을 찾을 수 없습니다."));
             comment.setLostFoundPost(lostFoundPost);
-
-            // After saving the comment, send a notification via WebSocket
             notificationService.sendLostFoundPostNotification(lostFoundPost);
         }
 

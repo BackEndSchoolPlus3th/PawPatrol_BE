@@ -1,5 +1,7 @@
 package com.patrol.domain.lostFoundPost.service;
 
+import com.patrol.api.comment.dto.CommentResponseDto;
+import com.patrol.api.lostFoundPost.dto.LostFoundPostDetailResponseDto;
 import com.patrol.api.lostFoundPost.dto.LostFoundPostRequestDto;
 import com.patrol.api.lostFoundPost.dto.LostFoundPostResponseDto;
 import com.patrol.api.member.auth.dto.MyPostsResponse;
@@ -9,6 +11,7 @@ import com.patrol.domain.ai.AiImageService;
 import com.patrol.domain.animal.entity.Animal;
 import com.patrol.domain.animal.enums.AnimalType;
 import com.patrol.domain.animal.repository.AnimalRepository;
+import com.patrol.domain.comment.service.CommentService;
 import com.patrol.domain.image.service.ImageHandlerService;
 import com.patrol.domain.lostFoundPost.entity.LostFoundPost;
 import com.patrol.domain.lostFoundPost.entity.PostStatus;
@@ -44,6 +47,7 @@ public class LostFoundPostService {
     private final ImageRepository imageRepository;
     private final ImageHandlerService imageHandlerService;
     private final AiImageService aiImageService;
+    private final CommentService commentService;
     private static final String FOLDER_PATH = "lostfoundpost/";
 
     @Transactional
@@ -64,13 +68,9 @@ public class LostFoundPostService {
         lostFoundPostRepository.save(lostFoundPost);
 
         if (pet != null) {
-            List<Image> petImages = imageRepository.findByPath(pet.getImageUrl());
-            if (!petImages.isEmpty()) {
-                for(Image petImage : petImages) {
-                    if (petImage.getStatus() != PostStatus.SIGHTED) { // SIGHTED 상태가 아닌 경우만 업데이트
-                        updateImageWithLostFoundPost(petImage, lostFoundPost);
-                    }
-                }
+            Image petImage = imageRepository.findByPath(pet.getImageUrl());
+            if (petImage.getStatus() != PostStatus.SIGHTED) {
+                updateImageWithLostFoundPost(petImage, lostFoundPost);
             }
         }
         getSavedImages(images, lostFoundPost);
@@ -139,12 +139,13 @@ public class LostFoundPostService {
     }
 
     @Transactional(readOnly = true)
-    public LostFoundPostResponseDto getLostFoundPostById(Long postId) {
+    public LostFoundPostDetailResponseDto getLostFoundPostById(Long postId) {
         LostFoundPost lostFoundPost = lostFoundPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(ErrorCode.POST_NOT_FOUND));
-
-        return LostFoundPostResponseDto.from(lostFoundPost);
+        List<CommentResponseDto> comments = commentService.getCommentsByLostFoundPost(postId);
+        return LostFoundPostDetailResponseDto.from(lostFoundPost, comments);
     }
+
 
     @Transactional(readOnly = true)
     public List<LostFoundPostResponseDto> getLostFoundPostsWithinRadius(double latitude, double longitude, double radius) {
