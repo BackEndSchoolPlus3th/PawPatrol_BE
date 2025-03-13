@@ -86,7 +86,6 @@ public interface AnimalCaseRepository extends JpaRepository<AnimalCase, Long> {
       Pageable pageable
   );
 
-  // 기본 findById 오버라이딩 - 소프트 삭제 필터링 추가
   @Query("SELECT ac FROM AnimalCase ac " +
       "LEFT JOIN FETCH ac.animal " +
       "LEFT JOIN FETCH ac.currentFoster " +

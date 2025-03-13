@@ -8,8 +8,6 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-import java.util.Collection;
-
 
 public interface HospitalRepository extends JpaRepository<Hospital, Long> {
     @Query(value = "SELECT h FROM Hospital h " +

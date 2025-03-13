@@ -57,7 +57,6 @@ public class ImageService {
     }
 
     public String uploadImageAndGetUrl(MultipartFile image, String folderPath) {
-        log.info("단일 이미지 업로드: folderPath={}", folderPath);
         try {
             FileUploadResult uploadResult = fileStorageHandler.handleFileUpload(
                     FileUploadRequest.builder()
@@ -68,7 +67,6 @@ public class ImageService {
 
             if (uploadResult != null) {
                 String imageUrl = endPoint + "/" + bucketName + "/" + folderPath + uploadResult.getFileName();
-                log.info("이미지 업로드 완료: URL={}", imageUrl);
                 return imageUrl;
             }
             return null;
@@ -80,8 +78,6 @@ public class ImageService {
 
     @Transactional
     public List<Image> uploadImages(List<MultipartFile> images, String folderPath, Long animalId, Long foundId) {
-        log.info("이미지 다중 업로드: folderPath={}, animalId={}, foundId={}, 이미지 개수={}",
-                folderPath, animalId, foundId, images.size());
 
         List<String> uploadedPaths = new ArrayList<>();
         List<Image> uploadedImages = new ArrayList<>();
@@ -110,12 +106,10 @@ public class ImageService {
 
                     Image savedImage = imageRepository.save(imageEntity);
                     uploadedImages.add(savedImage);
-                    log.info("이미지 업로드 및 저장: ID={}, URL={}", savedImage.getId(), imageUrl);
                 }
             }
             return uploadedImages;
         } catch (Exception e) {
-            log.error("이미지 업로드 실패, 롤백 중: {}", e.getMessage(), e);
             for (String path : uploadedPaths) {
                 try {
                     ncpObjectStorageService.delete(path);
@@ -130,7 +124,6 @@ public class ImageService {
 
     @Transactional
     public void deleteImages(List<Image> images) {
-        log.info("이미지 다중 삭제: 이미지 개수={}", images.size());
         images.forEach(image -> {
             try {
                 String fullPath = image.getPath();
@@ -138,7 +131,6 @@ public class ImageService {
                 if (key != null) {
                     ncpObjectStorageService.delete(key);
                     imageRepository.delete(image);
-                    log.info("이미지 삭제 완료: ID={}, Path={}", image.getId(), fullPath);
                 } else {
                     log.error("이미지 경로 추출 실패: ID={}, Path={}", image.getId(), fullPath);
                 }
@@ -175,7 +167,6 @@ public class ImageService {
             throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
         }
 
-        // 이미지 삭제
         try {
             String fullPath = image.getPath();
             String key = extractKeyFromUrl(fullPath);
@@ -197,9 +188,7 @@ public class ImageService {
 
     private String extractKeyFromUrl(String url) {
         try {
-            // 예: https://kr.object.ncloudstorage.com/paw-patrol/protection/sample27.jpg
-            // 에서 "protection/sample27.jpg" 추출
-            int bucketEndIndex = url.indexOf(bucketName) + bucketName.length() + 1; // +1은 '/' 문자 포함
+            int bucketEndIndex = url.indexOf(bucketName) + bucketName.length() + 1;
             return url.substring(bucketEndIndex);
         } catch (Exception e) {
             log.error("URL에서 키 추출 실패: {}, 에러: {}", url, e.getMessage());

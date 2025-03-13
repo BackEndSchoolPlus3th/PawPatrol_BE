@@ -53,10 +53,7 @@ public class ShelterService implements FacilityService {
 
         if (!newShelters.isEmpty()) {
           shelterRepository.saveAll(newShelters);
-          log.info("새로 저장된 보호소 수: {}", newShelters.size());
         }
-
-        log.info("처리된 전체 보호소 수: {}", response.getResponse().getBody().getItems().getItem().size());
       }
     } catch (Exception e) {
       log.error("데이터 저장 중 에러 발생: {}", e.getMessage(), e);
@@ -127,18 +124,15 @@ public class ShelterService implements FacilityService {
     return startTime + " - " + endTime;
   }
 
-  // 관리자 페이지 보호소 목록 조회 (페이징 처리)
   public Page<ShelterListResponse> getAllShelter(Pageable pageable) {
     Page<Shelter> shelterPage = shelterRepository.findAllWithAnimalCasesAndAnimals(pageable);
     return shelterPage.map(ShelterListResponse::of);
   }
 
-  // 회원가입 시 보호소 목록 조회
   public List<SearchShelterResponse> searchShelters(String keyword) {
     QShelter qShelter = QShelter.shelter;
     BooleanBuilder builder = new BooleanBuilder();
 
-    // keyword 를 통해 보호소 검색 (보호소 이름)
     if(keyword != null && !keyword.isEmpty()) {
       builder.and(qShelter.name.containsIgnoreCase(keyword));
     }
@@ -146,10 +140,7 @@ public class ShelterService implements FacilityService {
     Iterable<Shelter> shelterIterable = shelterRepository.findAll(builder);
     List<Shelter> shelterList = new ArrayList<>();
 
-    // Iterable을 List로 변환
     shelterIterable.forEach(shelterList::add);
-
-    // List를 SearchShelterResponse로 변환
     return shelterList.stream()
             .map(shelter -> SearchShelterResponse.builder()
                     .id(shelter.getId())

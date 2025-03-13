@@ -27,7 +27,6 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
 
-    // 기존 메서드 - 모든 채팅방 조회
     public RsData<Object> getUserChatRooms(Member loginUser) {
         try {
             List<ChatRoom> chatRooms = chatRoomRepository.findAllWithDetailsByMember(loginUser);
@@ -38,7 +37,6 @@ public class ChatRoomService {
         }
     }
 
-    // 새로운 메서드 - 타입별 채팅방 조회
     public RsData<Object> getUserChatRoomsByType(Member loginUser, ChatRoomType type) {
         try {
             List<ChatRoom> chatRooms = chatRoomRepository.findAllWithDetailsByMemberAndType(loginUser, type);
@@ -49,7 +47,6 @@ public class ChatRoomService {
         }
     }
 
-    // 공통 로직을 분리하여 코드 중복 방지
     private RsData<Object> processChatRooms(List<ChatRoom> chatRooms, Member loginUser) {
         List<ChatMessage> latestMessages = findLatestMessages(chatRooms);
 

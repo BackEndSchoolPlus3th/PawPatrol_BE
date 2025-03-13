@@ -1,4 +1,4 @@
-package com.patrol.domain.ai;
+package com.patrol.domain.ai.entity;
 
 import com.patrol.domain.animal.enums.AnimalType;
 import com.patrol.domain.lostFoundPost.entity.LostFoundPost;

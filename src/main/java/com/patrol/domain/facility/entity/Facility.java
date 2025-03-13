@@ -24,7 +24,7 @@ import static jakarta.persistence.CascadeType.ALL;
 @Getter
 public abstract class Facility extends BaseEntity {
 
-  private String name; // 시설명
+  private String name;
   private String address;
   private String tel;
   private Double latitude;
@@ -32,6 +32,6 @@ public abstract class Facility extends BaseEntity {
   @Embedded
   private OperatingHours operatingHours;
 
-  private String owner;   // 대표자
-  private String businessRegistrationNumber;  // 사업자 등록번호
+  private String owner;
+  private String businessRegistrationNumber;
 }

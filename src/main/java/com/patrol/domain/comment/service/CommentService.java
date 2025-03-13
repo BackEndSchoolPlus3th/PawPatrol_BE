@@ -71,7 +71,7 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public List<CommentResponseDto> getCommentsByLostFoundPost(Long lostFoundPostId) {
-        List<Comment> comments = commentRepository.findByLostFoundPostId(lostFoundPostId);  // ✅ 올바른 메서드 호출
+        List<Comment> comments = commentRepository.findByLostFoundPostId(lostFoundPostId);
 
         return comments.stream().map(CommentResponseDto::new).collect(Collectors.toList());
     }

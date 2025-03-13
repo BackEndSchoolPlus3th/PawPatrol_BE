@@ -10,10 +10,8 @@ import java.util.List;
 public interface ImageHandlerService {
     String createImageUrl(String folderPath, String fileName);
 
-    // 이미지 삭제
     void deleteImage(Image image);
 
-    // 경로로 이미지 삭제
     void deleteImageByPath(String path);
 
     Image registerImage (String imageUrl, Long animalId, Long foundId, PostStatus status, AnimalType animalType);

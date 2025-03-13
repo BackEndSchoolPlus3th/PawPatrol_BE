@@ -2,20 +2,15 @@ package com.patrol.domain.chatRoom.entity;
 
 import com.patrol.domain.Postable.Postable;
 import com.patrol.domain.animalCase.entity.AnimalCase;
-import com.patrol.domain.chatMessage.entity.ChatMessage;
 import com.patrol.domain.lostFoundPost.entity.LostFoundPost;
 import com.patrol.domain.member.member.entity.Member;
 import com.patrol.global.jpa.BaseEntity;
 import jakarta.persistence.*;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter

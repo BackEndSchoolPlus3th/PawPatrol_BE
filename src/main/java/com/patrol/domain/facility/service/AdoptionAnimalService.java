@@ -274,8 +274,6 @@ public class AdoptionAnimalService {
     }
   }
 
-
-  // 기존 동물 엔티티 업데이트
   private Animal updateAnimalFromRow(Animal animal, AdoptionAnimalApiResponse.Row row) {
     animal.setName(extractName(row.getName()));
     animal.setBreed(row.getBreed());
@@ -290,26 +288,6 @@ public class AdoptionAnimalService {
     return animal;
   }
 
-
-  // 새 동물 엔티티 생성
-  private Animal createAnimalFromRow(AdoptionAnimalApiResponse.Row row) {
-    String healthCondition = "YouTube 영상 참고";
-    String feature = "YouTube 영상 참고";
-
-    return Animal.builder()
-        .name(extractName(row.getName()))
-        .breed(row.getBreed())
-        .gender(row.getGender().equals("M") ? AnimalGender.M : AnimalGender.W)
-        .estimatedAge(row.getAge())
-        .healthCondition(healthCondition)
-        .feature(feature)
-        .registrationNo(row.getAnimalNo())
-        .animalType("DOG".equalsIgnoreCase(row.getSpecies()) ? AnimalType.DOG : AnimalType.CAT)
-        .size(calculateSize(row.getWeight()))
-        .isLost(false)
-        .build();
-  }
-
   public String extractName(String input) {
     int parenthesisIndex = input.indexOf('(');
     if (parenthesisIndex == -1) {
@@ -318,6 +296,23 @@ public class AdoptionAnimalService {
     return input.substring(0, parenthesisIndex);
   }
 
+  private Animal createAnimalFromRow(AdoptionAnimalApiResponse.Row row) {
+    String healthCondition = "YouTube 영상 참고";
+    String feature = "YouTube 영상 참고";
+
+    return Animal.builder()
+            .name(extractName(row.getName()))
+            .breed(row.getBreed())
+            .gender(row.getGender().equals("M") ? AnimalGender.M : AnimalGender.W)
+            .estimatedAge(row.getAge())
+            .healthCondition(healthCondition)
+            .feature(feature)
+            .registrationNo(row.getAnimalNo())
+            .animalType("DOG".equalsIgnoreCase(row.getSpecies()) ? AnimalType.DOG : AnimalType.CAT)
+            .size(calculateSize(row.getWeight()))
+            .isLost(false)
+            .build();
+  }
 
   private AnimalSize calculateSize(String bdwgh) {
     try {
@@ -340,14 +335,11 @@ public class AdoptionAnimalService {
     }
   }
 
-
-  // AnimalCase 업데이트
   private void updateAnimalCaseFromRow(AnimalCase animalCase, AdoptionAnimalApiResponse.Row row) {
     animalCase.setTitle(row.getName());
     animalCase.setDescription("영상 링크 : " + row.getVideoUrl());
   }
 
-  // 새 AnimalCase 생성
   private AnimalCase createAnimalCaseFromRow(AdoptionAnimalApiResponse.Row row, Animal animal, Shelter shelter) {
     AnimalCase animalCase = animalCaseService.createNewCase(CaseStatus.SHELTER_PROTECTING, animal);
     animalCase.setShelter(shelter);

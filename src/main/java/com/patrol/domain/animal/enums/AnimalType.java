@@ -3,17 +3,6 @@ package com.patrol.domain.animal.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-/**
- * packageName    : com.patrol.domain.animal.enums
- * fileName       : AnimalType
- * author         : sungjun
- * date           : 2025-02-24
- * description    : 자동 주석 생성
- * ===========================================================
- * DATE              AUTHOR             NOTE
- * -----------------------------------------------------------
- * 2025-02-24        kyd54       최초 생성
- */
 public enum AnimalType {
     DOG("강아지"),
     CAT("고양이");
