@@ -20,14 +20,11 @@ public class FCMNotificationService {
                 .putData("priority", "high")
                 .putData("requireInteraction", "true")
                 .putData("timestamp", String.valueOf(System.currentTimeMillis()))
-
                 .setNotification(Notification.builder()
                         .setTitle("채팅이 도착했습니다.")
                         .setBody(chatMessage.getContent())
                         .build())
-
                 .setToken(token)
-                .setFcmOptions(FcmOptions.builder().setAnalyticsLabel("high_priority").build())
                 .build();
 
         send(message);
