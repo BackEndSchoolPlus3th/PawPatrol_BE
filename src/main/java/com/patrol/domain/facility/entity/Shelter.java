@@ -10,8 +10,6 @@ import lombok.experimental.SuperBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-import static jakarta.persistence.CascadeType.ALL;
-
 @Entity
 @Getter
 @Setter
@@ -21,12 +19,12 @@ import static jakarta.persistence.CascadeType.ALL;
 @Table(name = "shelters")
 public class Shelter extends Facility {
 
-  private Integer vetPersonCount;  // 수의사 수
-  private String saveTargetAnimal; // 구조대상동물
+  private Integer vetPersonCount;
+  private String saveTargetAnimal;
 
   @JsonIgnore
   @OneToOne
-  @JoinColumn(name = "member_id")  // 외래 키 이름
+  @JoinColumn(name = "member_id")
   private Member shelterMember;
 
   @JsonIgnore

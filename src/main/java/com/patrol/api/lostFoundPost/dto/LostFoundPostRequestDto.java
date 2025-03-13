@@ -9,14 +9,14 @@ import lombok.*;
 @AllArgsConstructor
 public class LostFoundPostRequestDto {
     private String content;
-    private Double latitude;  // 위도 추가
-    private Double longitude; // 경도 추가
+    private Double latitude;
+    private Double longitude;
     private String location;
     private String findTime;
     private String lostTime;
-    private String status; // 상태를 String으로 받음
-    private Long petId;  // Add petId here
-    private String animalType; // Add animalType here to capture the animal type
+    private String status;
+    private Long petId;
+    private String animalType;
     private Integer reward;
 
 }

@@ -5,7 +5,7 @@ import com.patrol.api.lostFoundPost.dto.LostFoundPostDetailResponseDto;
 import com.patrol.api.lostFoundPost.dto.LostFoundPostRequestDto;
 import com.patrol.api.lostFoundPost.dto.LostFoundPostResponseDto;
 import com.patrol.api.member.auth.dto.MyPostsResponse;
-import com.patrol.domain.ai.AiImageService;
+import com.patrol.domain.ai.service.AiImageService;
 import com.patrol.domain.animal.entity.Animal;
 import com.patrol.domain.animal.enums.AnimalType;
 import com.patrol.domain.animal.repository.AnimalRepository;
@@ -111,19 +111,13 @@ public class LostFoundPostService {
         if (!lostFoundPost.getAuthor().equals(author)) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
         }
-        List<Image> images = imageRepository.findAllByFoundId(postId);
 
-        for (Image image : images) {
-            if (image.getAnimalId() != null) {
-                image.setFoundId(null);
-                imageRepository.save(image);
-            } else {
-                imageHandlerService.deleteImage(image);
-            }
+        try {
+            lostFoundPostRepository.deleteById(postId);
+        } catch (Exception e) {
+            log.error("이미지 삭제가 되지 않습니다. {}: {}", postId, e.getMessage());
         }
-        lostFoundPostRepository.deleteById(postId);
     }
-
 
 
     @Transactional(readOnly = true)

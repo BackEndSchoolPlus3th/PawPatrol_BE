@@ -1,7 +1,5 @@
 package com.patrol.domain.member.auth.entity;
 
-
-
 import com.patrol.api.member.member.dto.OAuthProviderStatus;
 import com.patrol.domain.member.member.entity.Member;
 import com.patrol.domain.member.member.enums.ProviderType;
@@ -32,8 +30,6 @@ public class OAuthProvider extends BaseEntity {
   @EqualsAndHashCode.Include
   private Member member;
 
-
-  // 소셜 계정 정보
   @Embedded
   private KakaoProvider kakao;
 
@@ -52,7 +48,6 @@ public class OAuthProvider extends BaseEntity {
       kakao = null;
     }
   }
-
 
   @Embedded
   private GoogleProvider google;
@@ -110,21 +105,18 @@ public class OAuthProvider extends BaseEntity {
   public Map<ProviderType, OAuthProviderStatus> getOAuthProviderStatuses() {
     Map<ProviderType, OAuthProviderStatus> statuses = new HashMap<>();
 
-    // kakao 정보 추가
     statuses.put(ProviderType.KAKAO, OAuthProviderStatus.builder()
         .createDate(kakao != null ? kakao.getConnectedAt() : null)
         .email(kakao != null ? kakao.getEmail() : null)
         .active(kakao != null && kakao.isConnected())
         .build());
 
-    // google 정보 추가
     statuses.put(ProviderType.GOOGLE, OAuthProviderStatus.builder()
         .createDate(google != null ? google.getConnectedAt() : null)
         .email(google != null ? google.getEmail() : null)
         .active(google != null && google.isConnected())
         .build());
 
-    // naver 정보 추가
     statuses.put(ProviderType.NAVER, OAuthProviderStatus.builder()
         .createDate(naver != null ? naver.getConnectedAt() : null)
         .email(naver != null ? naver.getEmail() : null)
@@ -133,5 +125,4 @@ public class OAuthProvider extends BaseEntity {
 
     return statuses;
   }
-
 }

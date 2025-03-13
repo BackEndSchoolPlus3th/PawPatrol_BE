@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 public class SocialConnectService {
 
   private final RedisTemplate<String, String> redisTemplate;
-  private static final String SOCIAL_CONNECT_KEY = "social:connect";  // 고정된 키
+  private static final String SOCIAL_CONNECT_KEY = "social:connect";
   private static final long EXPIRE_TIME = 5 * 60;
 
 
@@ -34,4 +34,3 @@ public class SocialConnectService {
   }
 
 }
-

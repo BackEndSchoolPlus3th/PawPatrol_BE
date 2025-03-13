@@ -16,7 +16,6 @@ import lombok.*;
 @AllArgsConstructor
 public class Comment extends BaseEntity {
 
-
     @Column(name = "content")
     private String content;
 

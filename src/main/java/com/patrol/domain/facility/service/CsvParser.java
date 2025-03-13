@@ -32,7 +32,7 @@ public class CsvParser {
     private String tel;
     private Double latitude;
     private Double longitude;
-    private OperatingHours operatingHours;  // 운영시간 원본 데이터
+    private OperatingHours operatingHours;
     private String homepage;
   }
 
@@ -42,10 +42,10 @@ public class CsvParser {
 
     try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
         CSVParser csvParser = new CSVParser(br, CSVFormat.DEFAULT
-            .withHeader("FRNM_NM", "RN_ADDR", "OPR_TIME_INFO", "RPRS_TELNO", "HMPG_URL", "LA_VLUE", "LO_VLUE") // 헤더 명시적 정의
-            .withTrim() // 모든 필드의 공백 제거
-            .withEscape('\\') // 이스케이프 문자 처리 (있는 경우)
-            .withQuote('"') // 큰따옴표를 따옴표 문자로 사용
+            .withHeader("FRNM_NM", "RN_ADDR", "OPR_TIME_INFO", "RPRS_TELNO", "HMPG_URL", "LA_VLUE", "LO_VLUE")
+            .withTrim()
+            .withEscape('\\')
+            .withQuote('"')
             .withIgnoreSurroundingSpaces()
             .withIgnoreEmptyLines())) {
 
@@ -87,14 +87,13 @@ public class CsvParser {
     }
   }
 
-
   private OperatingHours parseOperatingHours(String rawData) {
     if (rawData == null || rawData.trim().isEmpty()) {
       return null;
     }
 
     try {
-      if (rawData.contains("매일 00:00 - 24:00")) {  // 24시간 영업인 경우
+      if (rawData.contains("매일 00:00 - 24:00")) {
         return OperatingHours.builder()
             .weekdayTime("00:00 - 24:00")
             .weekendTime("00:00 - 24:00")
@@ -103,13 +102,11 @@ public class CsvParser {
 
       String[] parts = rawData.split("\\|");
 
-      // 평일 시간 추출 (월요일 기준)
       String weekdayTime = null;
       if (parts.length > 0) {
         weekdayTime = extractDayTime(parts[0]);
       }
 
-      // 주말 시간 추출 (토요일 기준)
       String weekendTime = null;
       for (String part : parts) {
         part = part.trim();
@@ -119,7 +116,6 @@ public class CsvParser {
         }
       }
 
-      // 휴무일 추출
       String closedDays = null;
       for (String part : parts) {
         part = part.trim();
@@ -141,7 +137,6 @@ public class CsvParser {
     }
   }
 
-
   private String extractDayTime(String dayData) {
     try {
       String[] parts = dayData.trim().split(" ", 2);
@@ -150,7 +145,6 @@ public class CsvParser {
       return null;
     }
   }
-
 
   private String extractClosedDays(String closedData) {
     try {
@@ -170,4 +164,3 @@ public class CsvParser {
     }
   }
 }
-

@@ -23,18 +23,17 @@ public class Protection extends BaseEntity {
   @Builder.Default
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private ProtectionStatus protectionStatus = ProtectionStatus.PENDING;  // 신청 상태 (승인전, 승인, 거절)
+  private ProtectionStatus protectionStatus = ProtectionStatus.PENDING;
 
-  private LocalDateTime approvedDate;  // 신청 승인일
-  private String reason;   // 신청 사유
-  private String rejectReason;   // 거절 사유
+  private LocalDateTime approvedDate;
+  private String reason;
+  private String rejectReason;
   private LocalDateTime deletedAt;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private ProtectionType protectionType;   // TEMP_PROTECTION or ADOPTION
+  private ProtectionType protectionType;
 
-  // N : 1
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "animal_case_id", nullable = false)
   private AnimalCase animalCase;

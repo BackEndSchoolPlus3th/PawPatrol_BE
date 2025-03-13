@@ -8,7 +8,6 @@ import com.patrol.domain.animalCase.enums.ContentType;
 import com.patrol.domain.animalCase.events.PostCreatedEvent;
 import com.patrol.domain.animalCase.events.AnimalCaseCreatedEvent;
 import com.patrol.domain.animalCase.events.ProtectionStatusChangeEvent;
-import com.patrol.domain.animalCase.events.MyPetCreatedEvent;
 import com.patrol.domain.lostFoundPost.entity.LostFoundPost;
 import com.patrol.domain.lostFoundPost.entity.PostStatus;
 import com.patrol.domain.member.member.entity.Member;

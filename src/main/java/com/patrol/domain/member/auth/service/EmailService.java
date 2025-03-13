@@ -1,7 +1,5 @@
 package com.patrol.domain.member.auth.service;
 
-
-
 import com.patrol.api.member.auth.dto.EmailDto;
 import com.patrol.global.exceptions.ErrorCodes;
 import com.patrol.global.exceptions.ServiceException;
@@ -35,11 +33,8 @@ public class EmailService {
 
   private static final String KEY_PREFIX = "email:verification:";
 
-
-  // 인증 메일 발송
   @Async
   public void sendVerificationEmail(String email) {
-    // 인증 코드 생성, Redis에 저장
     String verificationCode = _generateVerificationCode();
     _saveVerificationCode(email, verificationCode);
     
@@ -60,8 +55,6 @@ public class EmailService {
     _sendEmail(emailDto);
   }
 
-
-  // 인증 코드 검증
   public boolean verifyCode(String email, String code) {
     String key = KEY_PREFIX + email;
     String savedCode = redisTemplate.opsForValue().get(key);
@@ -77,14 +70,11 @@ public class EmailService {
     }
 
     redisTemplate.delete(key);
-
-    // 인증 완료 상태 저장
     redisTemplate.opsForValue()
             .set("email:verify:" + email, "verified", 3, TimeUnit.MINUTES);
 
     return true;
   }
-
 
   private void _sendEmail(EmailDto emailDto) {
     MimeMessage emailForm = _createEmailForm(emailDto);
@@ -96,15 +86,13 @@ public class EmailService {
     }
   }
 
-
-  // 이메일 폼 생성
   private MimeMessage _createEmailForm(EmailDto emailDto) {
     try {
       MimeMessage message = emailSender.createMimeMessage();
       MimeMessageHelper messageHelper = new MimeMessageHelper(message, true, "UTF-8");
       messageHelper.setTo(emailDto.getReceiver());
       messageHelper.setFrom(EmailDto.SENDER_EMAIL, EmailDto.SENDER_NAME);
-      messageHelper.setSubject(emailDto.getTitle()); // 메일제목은 생략 가능
+      messageHelper.setSubject(emailDto.getTitle());
       messageHelper.setText(emailDto.getText());
 
       emailSender.send(message);
@@ -115,19 +103,15 @@ public class EmailService {
     }
   }
 
-
-  // 인증 코드 생성
   private String _generateVerificationCode() {
-    return String.format("%06d", secureRandom.nextInt(1000000));  // 6자리 숫자
+    return String.format("%06d", secureRandom.nextInt(1000000));
   }
 
-
-  // 인증 코드 저장 (Redis : 30분 유효)
   public void _saveVerificationCode(String email, String code) {
     String key = KEY_PREFIX + email;
 
     redisTemplate.opsForValue()
-        .set(key, code, Duration.ofMinutes(30));  // TTL 설정 추가
+        .set(key, code, Duration.ofMinutes(30));
   }
 
 }

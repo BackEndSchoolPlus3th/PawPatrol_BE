@@ -1,5 +1,8 @@
-package com.patrol.domain.ai;
+package com.patrol.domain.ai.service;
 
+import com.patrol.domain.ai.entity.AiImage;
+import com.patrol.domain.ai.event.AiImageSavedEvent;
+import com.patrol.domain.ai.repository.AiImageRepository;
 import com.patrol.domain.comment.entity.Comment;
 import com.patrol.domain.comment.repository.CommentRepository;
 import com.patrol.domain.image.entity.Image;
@@ -65,18 +68,17 @@ public class AiImageService {
 
     @Transactional
     public void linkSightedToFindingPost(AiImage newImage, AiImage targetImage, double similarity) {
-
-        String similarityInfo = String.format("%.2f", similarity);
         LostFoundPost targetPost = lostFoundPostRepository.findById(targetImage.getLostFoundPost().getId())
                 .orElseThrow(() -> new IllegalArgumentException("🚨 해당 이미지 ID에 대한 게시글을 찾을 수 없음: " + targetImage.getId()));
         LostFoundPost findWantPost = lostFoundPostRepository.findById(newImage.getLostFoundPost().getId())
                 .orElseThrow(() -> new IllegalArgumentException("🚨 해당 이미지 ID에 대한 게시글을 찾을 수 없음: " + newImage.getId()));
-        String imageUrl = findWantPost.getImages().isEmpty() ? "이미지 없음" : findWantPost.getImages().get(0).getPath();
 
+        String imageUrl = findWantPost.getImages().isEmpty() ? "이미지 없음" : findWantPost.getImages().get(0).getPath();
         String postUrl = domain + "/PetPostDetail/" + findWantPost.getId();
+
         String commentContent = String.format(
-                "🔍 유사한 목격 제보가 있습니다!\n\n내용: %s\n [게시글 보기](%s)\n📝 유사도: %.2f",
-                findWantPost.getContent(), imageUrl, postUrl, similarityInfo
+                "🔍 유사한 목격 제보가 있습니다!\n\n내용: %s\n🖼️ 이미지: %s\n🔗 [게시글 보기](%s)\n📝 유사도: %.2f",
+                findWantPost.getContent(), imageUrl, postUrl, similarity
         );
 
         Comment comment = Comment.builder()
@@ -87,6 +89,6 @@ public class AiImageService {
 
         commentRepository.save(comment);
 
-        log.info("✅ai 덧글 연동 완료 (유사도: {:.2f})", similarityInfo);
+        log.info("✅ AI 덧글 연동 완료 (유사도: {:.2f})", similarity);
     }
 }

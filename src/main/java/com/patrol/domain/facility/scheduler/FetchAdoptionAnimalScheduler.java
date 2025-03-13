@@ -59,7 +59,6 @@ public class FetchAdoptionAnimalScheduler {
 
   private String fetchAdoptionAnimalsData() {
     try {
-      // TbAdpWaitAnimalView는 서비스명, 1은 시작위치, 1000은 종료위치
       String url = String.format("%s/%s/json/TbAdpWaitAnimalView/1/1000",
           apiUrl, apiKey);
       log.info("API Request URL: {}", url);

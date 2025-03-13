@@ -23,21 +23,20 @@ public class CaseHistory extends BaseEntity {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private CaseHistoryStatus historyStatus;  // 행동 하나하나의 기록
+  private CaseHistoryStatus historyStatus;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private ContentType contentType;  // 기록 대상 : findPost, lostPost, protection, animalCase
+  private ContentType contentType;
 
   @Column(nullable = false)
-  private Long contentId;  // 기록 대상의 ID
+  private Long contentId;
 
   @Column(nullable = false)
-  private Long memberId;  // 행위 주체자 ID
+  private Long memberId;
 
   private LocalDateTime deletedAt;
 
-  // 1 : N
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "animal_case_id", nullable = false)
   private AnimalCase animalCase;

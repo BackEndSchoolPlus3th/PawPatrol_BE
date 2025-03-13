@@ -1,7 +1,6 @@
 package com.patrol.domain.animalCase.events;
 
 import com.patrol.domain.animal.entity.Animal;
-import com.patrol.domain.animalCase.enums.CaseHistoryStatus;
 import com.patrol.domain.animalCase.enums.CaseStatus;
 import com.patrol.domain.member.member.entity.Member;
 import lombok.AllArgsConstructor;

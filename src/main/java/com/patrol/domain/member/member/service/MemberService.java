@@ -1,18 +1,12 @@
 package com.patrol.domain.member.member.service;
 
-
-
-
-import com.patrol.api.member.member.dto.request.MemberUpdateRequest;
 import com.patrol.domain.member.member.entity.Member;
 import com.patrol.domain.member.member.enums.MemberStatus;
 import com.patrol.domain.member.member.repository.MemberRepository;
 import com.patrol.global.exceptions.ErrorCodes;
 import com.patrol.global.exceptions.ServiceException;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,14 +45,12 @@ public class MemberService {
         member.setStatus(MemberStatus.BANNED);
     }
 
-
     @Transactional
     public void deactivateMember(Long memberId) {
         memberRepository.findById(memberId)
             .orElseThrow(() -> new ServiceException(ErrorCodes.MEMBER_NOT_FOUND))
             .deactivate();
     }
-
 
     @Transactional
     public void restoreMember(Long memberId) {

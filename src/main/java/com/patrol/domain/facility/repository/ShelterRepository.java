@@ -32,12 +32,9 @@ public interface ShelterRepository extends JpaRepository<Shelter, Long>,
         "LEFT JOIN FETCH ac.animal")
     List<Shelter> findAllWithAnimalCasesAndAnimals();
 
-    // 보호소 목록 페이징 처리 오버로딩
     @Query("SELECT s FROM Shelter s ")
     Page<Shelter> findAllWithAnimalCasesAndAnimals(Pageable pageable);
 
     Optional<Shelter> findByName(String centerName);
     Boolean existsByBusinessRegistrationNumber(String businessRegistrationNumber);
 }
-
-

@@ -37,5 +37,5 @@ public class Notification extends BaseEntity {
     private boolean isRead = false;
 
     @Column(name = "related_id")
-    private Long relatedId; // 댓글 ID 등을 저장할 수 있는 필드
+    private Long relatedId;
 }

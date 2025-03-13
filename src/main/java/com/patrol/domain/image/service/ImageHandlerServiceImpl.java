@@ -42,7 +42,6 @@ public class ImageHandlerServiceImpl implements ImageHandlerService {
     @Override
     @Transactional
     public Image registerImage (String imageUrl, Long animalId, Long foundId, PostStatus status, AnimalType animalType) {
-        log.info("이미지 등록 시작: animalId={}, foundId={}, Path={}", animalId, foundId, imageUrl);
 
         Image image = Image.builder()
                 .path(imageUrl)
@@ -54,9 +53,6 @@ public class ImageHandlerServiceImpl implements ImageHandlerService {
 
         Image savedImage = imageRepository.save(image);
 
-        log.info("이미지 저장 완료: ID={}, animalId={}, foundId={}, Path={}",
-                savedImage.getId(), savedImage.getAnimalId(), savedImage.getFoundId(), savedImage.getPath());
-
         return savedImage;
     }
 
@@ -66,14 +62,12 @@ public class ImageHandlerServiceImpl implements ImageHandlerService {
         List<Image> savedImages = new ArrayList<>();
         List<String> uploadedPaths = new ArrayList<>();
 
-        // 파일이 없을 경우 빈 리스트를 바로 반환
         if (files == null || files.isEmpty()) {
-            return savedImages; // 빈 리스트 반환
+            return savedImages;
         }
 
         try {
             for (MultipartFile file : files) {
-                // 파일이 null이 아니고 유효한 경우에만 업로드 진행
                 if (file != null && !file.isEmpty()) {
                     FileUploadResult uploadResult = fileStorageHandler.handleFileUpload(
                             FileUploadRequest.builder()
@@ -94,11 +88,9 @@ public class ImageHandlerServiceImpl implements ImageHandlerService {
             }
             return savedImages;
         } catch (Exception e) {
-            // 업로드 실패 시 이미 업로드된 파일 삭제
             for (String path : uploadedPaths) {
                 ncpObjectStorageService.delete(path);
             }
-            // 오류를 던지기 전에 적절한 예외를 처리
             throw new CustomException(ErrorCode.DATABASE_ERROR);
         }
     }
@@ -149,9 +141,7 @@ public class ImageHandlerServiceImpl implements ImageHandlerService {
     @Transactional
     public void deleteImage(Image image) {
         try {
-            // 스토리지에서 파일 삭제
             ncpObjectStorageService.delete(image.getPath());
-            // DB에서 이미지 정보 삭제
             imageRepository.delete(image);
         } catch (Exception e) {
             log.error("이미지 삭제 중 오류 발생: {}", e.getMessage(), e);
@@ -163,9 +153,7 @@ public class ImageHandlerServiceImpl implements ImageHandlerService {
     @Transactional
     public void deleteImageByPath(String path) {
         try {
-            // 스토리지에서 파일 삭제
             ncpObjectStorageService.delete(path);
-            // DB에서 해당 경로의 이미지 찾아서 삭제
             Image image = imageRepository.findByPath(path);
             if (image != null) {
                 imageRepository.delete(image);

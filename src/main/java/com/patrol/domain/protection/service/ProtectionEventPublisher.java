@@ -1,7 +1,5 @@
 package com.patrol.domain.protection.service;
 
-import com.patrol.domain.animalCase.enums.CaseStatus;
-import com.patrol.domain.animalCase.enums.ContentType;
 import com.patrol.domain.protection.entity.Protection;
 import com.patrol.domain.protection.event.ProtectionEvent;
 import com.patrol.domain.protection.event.ProtectionEvent.ProtectionEventType;

@@ -1,8 +1,5 @@
 package com.patrol.domain.member.auth.service;
 
-
-
-
 import com.patrol.api.member.auth.dto.SocialTokenInfo;
 import com.patrol.domain.member.member.entity.Member;
 import com.patrol.domain.member.member.enums.ProviderType;

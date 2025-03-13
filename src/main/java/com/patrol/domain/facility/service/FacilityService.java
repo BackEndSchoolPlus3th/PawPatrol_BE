@@ -13,6 +13,4 @@ public interface FacilityService {
           double longitude,
           double radius
   );
-
-
 }

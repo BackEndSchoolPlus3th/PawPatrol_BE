@@ -41,24 +41,24 @@ public class Animal extends BaseEntity {
     private AnimalGender gender;    // 성별
 
     @Enumerated(EnumType.STRING)
-    private AnimalSize size;    // 크기
+    private AnimalSize size;
 
-    private String feature; // 특징
-    private String healthCondition; // 건강상태
-    private String name;    // 이름
-    private String estimatedAge;    // 나이
+    private String feature;
+    private String healthCondition;
+    private String name;
+    private String estimatedAge;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Member owner;
 
-    private String registrationNo;  // 동물등록번호
+    private String registrationNo;
 
-    private String imageUrl;  // 반려동물 사진
+    private String imageUrl;
 
     @Enumerated(EnumType.STRING)
-    private AnimalType animalType;  // 고양이, 강아지 구분
+    private AnimalType animalType;
 
-    private boolean isLost = false; // 실종여부
+    private boolean isLost = false;
 
     @JsonIgnore
     @OneToMany(mappedBy = "animal", cascade = CascadeType.ALL, orphanRemoval = true)

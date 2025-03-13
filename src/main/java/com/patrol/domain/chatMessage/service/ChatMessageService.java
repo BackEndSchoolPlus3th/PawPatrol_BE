@@ -21,7 +21,6 @@ import com.patrol.domain.member.member.entity.Member;
 import com.patrol.domain.member.member.repository.MemberRepository;
 import com.patrol.global.error.ErrorCode;
 import com.patrol.global.exception.CustomException;
-import com.patrol.global.jpa.BaseEntity;
 import com.patrol.global.rsData.RsData;
 import com.patrol.global.storage.FileStorageHandler;
 import com.patrol.global.storage.FileUploadRequest;
@@ -68,8 +67,6 @@ public class ChatMessageService {
             if (requestMessage.getContent().length() > 250) {
                 return new RsData<>("400", "채팅 메시지는 250자를 넘을 수 없습니다.");
             }
-
-            // 게시물 타입에 따라 처리 - Object 타입으로 변경
             Object post;
 
             if (type == ChatRoomType.LOSTFOUND) {
@@ -89,7 +86,6 @@ public class ChatMessageService {
                 post = postOptional.get();
             }
 
-            // 송신자 및 수신자 확인
             Member receiver;
             Member sender;
 
@@ -111,11 +107,9 @@ public class ChatMessageService {
                 return new RsData<>("404", "수신자 또는 발신자 정보가 없습니다.");
             }
 
-            // 채팅방 찾기 또는 생성
             ChatRoom chatRoom;
             Optional<ChatRoom> chatRoomOptional;
 
-            // 타입에 따라 다른 메서드 호출
             if (type == ChatRoomType.LOSTFOUND) {
                 chatRoomOptional = chatRoomRepository.findByLostFoundPostAndMembers(
                         (LostFoundPost) post, sender, receiver);
@@ -127,7 +121,6 @@ public class ChatMessageService {
             if (chatRoomOptional.isPresent()) {
                 chatRoom = chatRoomOptional.get();
             } else {
-                // 새 채팅방 생성
                 String roomIdentifier;
 
                 if (type == ChatRoomType.LOSTFOUND) {
@@ -158,7 +151,6 @@ public class ChatMessageService {
                 logger.info("New chat room created: {}", roomIdentifier);
             }
 
-            // 채팅 메시지 생성 및 저장
             ChatMessage chatMessage = ChatMessage.builder()
                     .content(requestMessage.getContent())
                     .sender(sender)
@@ -168,7 +160,6 @@ public class ChatMessageService {
                     .build();
             chatMessageRepository.save(chatMessage);
 
-            // 응답 메시지 DTO 생성
             Long postIdValue;
             if (post instanceof LostFoundPost) {
                 postIdValue = ((LostFoundPost) post).getId();
@@ -188,7 +179,6 @@ public class ChatMessageService {
                     .roomIdentifier(chatRoom.getRoomIdentifier())
                     .build();
 
-            // 메시지 전송 (실시간 또는 오프라인)
             String receiverId = String.valueOf(receiver.getId());
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.registerModule(new JavaTimeModule());
@@ -217,7 +207,7 @@ public class ChatMessageService {
             }
             ChatRoom chatRoom;
             Member receiver;
-            Object post; // Postable 인터페이스 대신 Object 타입 사용
+            Object post;
 
             Optional<ChatRoom> chatRoomOptional = chatRoomRepository.findByRoomIdentifier(roomIdentifier);
 
@@ -228,10 +218,10 @@ public class ChatMessageService {
                 } else {
                     receiver = chatRoom.getMember1();
                 }
-                post = chatRoom.getPost(); // getPost() 도우미 메서드 사용
+                post = chatRoom.getPost();
             } else {
                 String[] parts = roomIdentifier.split("_");
-                if (parts.length != 4) { // LOSTFOUND_postId_memberId1_memberId2 형식이므로 4개로 분리됨
+                if (parts.length != 4) {
                     return new RsData<>("400", "잘못된 채팅방 식별자 형식입니다.", null);
                 }
 
@@ -242,7 +232,6 @@ public class ChatMessageService {
 
                 Long receiverId = (loginUser.getId().equals(memberId1)) ? memberId2 : memberId1;
 
-                // 게시물 타입에 따라 처리
                 if (type == ChatRoomType.LOSTFOUND) {
                     Optional<LostFoundPost> postOptional = lostFoundPostRepository.findById(postId);
                     if (postOptional.isEmpty()) {
@@ -263,7 +252,6 @@ public class ChatMessageService {
                 }
                 receiver = receiverOptional.get();
 
-                // 채팅방 타입에 따라 다른 빌더 메서드 사용
                 if (type == ChatRoomType.LOSTFOUND) {
                     chatRoom = ChatRoom.builder()
                             .lostFoundPost((LostFoundPost) post)
@@ -312,10 +300,8 @@ public class ChatMessageService {
                     }
                 }
 
-                // 이미지 정보를 JSON으로 변환
                 String imageContent = objectMapper.writeValueAsString(imageDtos);
 
-                // 채팅 메시지 생성
                 ChatMessage chatMessage = ChatMessage.builder()
                         .content(imageContent)
                         .messageType(MessageType.IMAGE)
@@ -327,10 +313,8 @@ public class ChatMessageService {
 
                 chatMessageRepository.save(chatMessage);
 
-                // 게시물 ID 가져오기
-                Long postId = chatRoom.getPostId(); // 도우미 메서드 사용
+                Long postId = chatRoom.getPostId();
 
-                // 응답 메시지 생성
                 ResponseMessage messageDTO = ResponseMessage.builder()
                         .id(chatMessage.getId())
                         .content(imageContent)

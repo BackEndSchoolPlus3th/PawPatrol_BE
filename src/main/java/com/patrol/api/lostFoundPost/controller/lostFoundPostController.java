@@ -33,7 +33,7 @@ public class lostFoundPostController {
     private final ObjectMapper objectMapper;
 
     @PostMapping
-    @Operation(summary = "제보 게시글 등록") //해결
+    @Operation(summary = "제보 게시글 등록")
     public RsData<LostFoundPostResponseDto> createStandaloneFindPost(
             @RequestParam("metadata") String metadataJson,
             @RequestParam(value = "images", required = false) List<MultipartFile> images,
@@ -41,7 +41,6 @@ public class lostFoundPostController {
             @LoginUser Member loginUser) {
         try {
             LostFoundPostRequestDto requestDto = objectMapper.readValue(metadataJson, LostFoundPostRequestDto.class);
-            // 이미지가 null일 경우 빈 리스트로 초기화
             if (images == null) {
                 images = new ArrayList<>();
             }
@@ -51,8 +50,6 @@ public class lostFoundPostController {
             return new RsData<>("400", "잘못된 JSON 형식입니다.", null);
         }
     }
-
-
 
     @PutMapping("/{postId}")
     @Operation(summary = "제보 게시글 수정")
@@ -104,7 +101,6 @@ public class lostFoundPostController {
         LostFoundPostDetailResponseDto responseDto = lostFoundPostService.getLostFoundPostById(postId);
         return new RsData<>("200", "제보 게시글을 성공적으로 조회했습니다.", responseDto);
     }
-
 
     @GetMapping("/finding")
     @Operation(summary = "실종 게시글 목록 조회")

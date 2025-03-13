@@ -3,12 +3,10 @@ package com.patrol.domain.animalCase.events;
 import com.patrol.domain.animal.entity.Animal;
 import com.patrol.domain.animal.service.AnimalService;
 import com.patrol.domain.animalCase.entity.AnimalCase;
-import com.patrol.domain.animalCase.enums.CaseHistoryStatus;
 import com.patrol.domain.animalCase.enums.CaseStatus;
 import com.patrol.domain.animalCase.enums.ContentType;
 import com.patrol.domain.animalCase.service.AnimalCaseService;
 import com.patrol.domain.animalCase.service.CaseHistoryService;
-import com.patrol.domain.member.member.entity.Member;
 import com.patrol.domain.member.member.enums.MemberRole;
 import com.patrol.domain.protection.entity.Protection;
 import com.patrol.domain.protection.service.ProtectionService;
@@ -29,7 +27,6 @@ public class AnimalCaseEventManager {
   private final ProtectionService protectionService;
 
 
-  // PostCreated 이벤트 처리
   @Transactional
   public void handleLostPost(PostCreatedEvent event) {
     Animal animal = animalService.findById(event.getAnimalId())
@@ -70,8 +67,6 @@ public class AnimalCaseEventManager {
   }
 
 
-
-  // ProtectionStatusChange 이벤트 처리
   @Transactional
   public void handleProtectionStatusChange(ProtectionStatusChangeEvent event) {
     Protection protection = protectionService.findById(event.getProtectionId())
@@ -79,8 +74,7 @@ public class AnimalCaseEventManager {
 
     AnimalCase animalCase = protection.getAnimalCase();
 
-    // 유효성 검증
-    validateStatusTransition(animalCase.getStatus(), event.getToStatus());  // 상태 전이 가능 여부 (임보대기 -> 임보 중)
+    validateStatusTransition(animalCase.getStatus(), event.getToStatus());
 
     animalCase.updateStatus(event.getToStatus());
     caseHistoryService.addHistory(

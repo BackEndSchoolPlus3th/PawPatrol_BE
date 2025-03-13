@@ -98,8 +98,6 @@ public class HospitalService implements FacilityService {
     return hospitals;
   }
 
-
-
   private Hospital convertToEntity(CsvParser.HospitalData data) {
     log.info(data.getTel());
 

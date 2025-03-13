@@ -2,7 +2,7 @@ package com.patrol.domain.lostFoundPost.entity;
 
 import com.patrol.api.lostFoundPost.dto.LostFoundPostRequestDto;
 import com.patrol.domain.Postable.Postable;
-import com.patrol.domain.ai.AiImage;
+import com.patrol.domain.ai.entity.AiImage;
 import com.patrol.domain.animal.entity.Animal;
 import com.patrol.domain.animal.enums.AnimalType;
 import com.patrol.domain.comment.entity.Comment;

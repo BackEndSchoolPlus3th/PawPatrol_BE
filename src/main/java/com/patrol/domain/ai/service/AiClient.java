@@ -1,4 +1,4 @@
-package com.patrol.domain.ai;
+package com.patrol.domain.ai.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
