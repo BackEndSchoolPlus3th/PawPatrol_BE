@@ -1,4 +1,4 @@
-package com.patrol.domain.ai.service;
+package com.patrol.domain.ai;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -1,5 +1,6 @@
 package com.patrol.domain.animalCase.entity;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.patrol.domain.Postable.Postable;
 import com.patrol.domain.animal.entity.Animal;
@@ -28,7 +29,7 @@ public class AnimalCase extends BaseEntity implements Postable {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private CaseStatus status;
+  private CaseStatus status;  // 상태 : 실종, 발견, 구조, 임시보호, 완료 등
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "animal_id")
