@@ -20,10 +20,10 @@ spring:
     listener:
       concurrency: 3
     groups:
-      ai-group-id: ai-image-processor    # ✅ AI 이미지 전용 Consumer
-      notification-group-id: push-notification-group  # ✅ 알림 전용 Consumer
-      chat-notification-group-id: chat-notification-group  # ✅ 채팅 알림 전용 Consumer
-      chat-message-group-id: chat-message-group  # ✅ 실시간 채팅 메시지 전용 Consumer
+      ai-group-id: ai-image-processor
+      notification-group-id: push-notification-group
+      chat-notification-group-id: chat-notification-group
+      chat-message-group-id: chat-message-group
   profiles:
     active: dev
     include: secret
@@ -117,6 +117,7 @@ ai:
 #  service-url: http://223.130.161.144:8000
 
 app:
+  domain: "http://localhost:5173"  # 운영 환경 도메인
   upload:
     dir: ./uploads  # 업로드 디렉토리 경로 설정
   similarity:

@@ -2,6 +2,7 @@ package com.patrol.api.lostFoundPost.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.patrol.api.lostFoundPost.dto.LostFoundPostDetailResponseDto;
 import com.patrol.api.lostFoundPost.dto.LostFoundPostRequestDto;
 import com.patrol.api.lostFoundPost.dto.LostFoundPostResponseDto;
 import com.patrol.domain.lostFoundPost.entity.PostStatus;
@@ -99,10 +100,11 @@ public class lostFoundPostController {
 
     @GetMapping("/{postId}")
     @Operation(summary = "제보 게시글 상세 조회")
-    public RsData<LostFoundPostResponseDto> getFindPostById(@PathVariable(name = "postId") Long postId) {
-        LostFoundPostResponseDto responseDto = lostFoundPostService.getLostFoundPostById(postId);
+    public RsData<LostFoundPostDetailResponseDto> getFindPostById(@PathVariable(name = "postId") Long postId) {
+        LostFoundPostDetailResponseDto responseDto = lostFoundPostService.getLostFoundPostById(postId);
         return new RsData<>("200", "제보 게시글을 성공적으로 조회했습니다.", responseDto);
     }
+
 
     @GetMapping("/finding")
     @Operation(summary = "실종 게시글 목록 조회")

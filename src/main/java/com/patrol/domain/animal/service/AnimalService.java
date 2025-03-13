@@ -83,7 +83,7 @@ public class AnimalService {
 
             animalCaseEventPublisher.createMyPet(member, animal);  // AnimalCase(상세화면) 생성
 
-            imageHandlerService.registerImage(imageUrl, savedAnimal.getId(), null, null, savedAnimal.getAnimalType());
+//            imageHandlerService.registerImage(imageUrl, savedAnimal.getId(), null, null, savedAnimal.getAnimalType());
         } else {
             throw new CustomException(ErrorCode.FILE_UPLOAD_ERROR);
         }

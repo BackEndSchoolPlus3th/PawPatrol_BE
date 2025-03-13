@@ -44,27 +44,32 @@ public class NotProd {
       @Override
       public void run(ApplicationArguments args) throws Exception {
         // Member1,2,3 생성
-        // Member1,2,3 생성
-        SignupRequest request1 = new SignupRequest("test1@test.com", "1234", "강남", "서울");
+        SignupRequest request1 = new SignupRequest("test1@test.com", "1234", "관리자", "서울");
         SignupRequest request2 = new SignupRequest("test2@test.com", "1234", "홍길동", "경기도");
         SignupRequest request3 = new SignupRequest("test3@test.com", "1234", "제펫토", "강원도");
+        SignupRequest request4 = new SignupRequest("test4@test.com", "1234", "사자", "충청도");
+        SignupRequest request5 = new SignupRequest("test5@test.com", "1234", "토끼", "인천");
+        SignupRequest request6 = new SignupRequest("test6@test.com", "1234", "콩나물", "서울");
 
         Member member1 = authService.signUp(request1);
         Member member2 = authService.signUp(request2);
         Member member3 = authService.signUp(request3);
+        Member member4 = authService.signUp(request4);
+        Member member5 = authService.signUp(request5);
+        Member member6 = authService.signUp(request6);
 
-        long member3Id = member3.getId();
+        long member1Id = member1.getId();
 
         // ID로 멤버 조회
-        Member mem3 = memberRepository.findById(member3Id).orElseThrow(() ->
-                new EntityNotFoundException("Member not found with id: " + member3Id));
+        Member mem1 = memberRepository.findById(member1Id).orElseThrow(() ->
+                new EntityNotFoundException("Member not found with id: " + member1Id));
 
         // 멤버3 권한 변경 (ADMIN)
-        mem3.setRole(MemberRole.ROLE_ADMIN);
-        mem3.setLoginType(ProviderType.SELF);
-        mem3.setStatus(MemberStatus.ACTIVE);
-        mem3.setProfileImageUrl("default.png");
-        memberRepository.save(mem3);
+        mem1.setRole(MemberRole.ROLE_ADMIN);
+        mem1.setLoginType(ProviderType.SELF);
+        mem1.setStatus(MemberStatus.ACTIVE);
+        mem1.setProfileImageUrl("default.png");
+        memberRepository.save(mem1);
 
 
         List<PetRegisterRequest> sampleAnimals = SampleAnimalData.getSampleStrayAnimals();
@@ -134,8 +139,8 @@ public class NotProd {
 
 // 각 회원별로 2마리씩 반려동물 등록
         for (int i = 0; i < myPets.size(); i++) {
-          // 회원 할당 (0,1,2번 동물은 member1, 3,4,5번 동물은 member2)
-          Member owner = (i < 3) ? member1 : (i < 6) ? member2 : member3;
+          // 회원 할당 (0,1,2번 동물은 member2, 3,4,5번 동물은 member3)
+          Member owner = (i < 3) ? member2 : (i < 6) ? member3 : member1;
 
           // Animal 객체 생성
           Animal pet = Animal.builder()

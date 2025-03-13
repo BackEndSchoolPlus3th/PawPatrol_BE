@@ -6,8 +6,10 @@ import com.patrol.domain.image.entity.Image;
 import com.patrol.domain.image.repository.ImageRepository;
 import com.patrol.domain.lostFoundPost.entity.LostFoundPost;
 import com.patrol.domain.lostFoundPost.repository.LostFoundPostRepository;
+import com.patrol.domain.member.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,11 @@ public class AiImageService {
     private final CommentRepository commentRepository;
     private final ImageRepository imageRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final MemberRepository memberRepository;
+
+    @Value("${app.domain}")
+    private String domain;
+
 
     @Transactional
     public void saveAiImages (List<MultipartFile> images, Long foundId, LostFoundPost lostFoundPost) {
@@ -59,25 +66,27 @@ public class AiImageService {
     @Transactional
     public void linkSightedToFindingPost(AiImage newImage, AiImage targetImage, double similarity) {
 
+        String similarityInfo = String.format("%.2f", similarity);
         LostFoundPost targetPost = lostFoundPostRepository.findById(targetImage.getLostFoundPost().getId())
                 .orElseThrow(() -> new IllegalArgumentException("🚨 해당 이미지 ID에 대한 게시글을 찾을 수 없음: " + targetImage.getId()));
         LostFoundPost findWantPost = lostFoundPostRepository.findById(newImage.getLostFoundPost().getId())
                 .orElseThrow(() -> new IllegalArgumentException("🚨 해당 이미지 ID에 대한 게시글을 찾을 수 없음: " + newImage.getId()));
         String imageUrl = findWantPost.getImages().isEmpty() ? "이미지 없음" : findWantPost.getImages().get(0).getPath();
+
+        String postUrl = domain + "/PetPostDetail/" + findWantPost.getId();
         String commentContent = String.format(
-                "🔍 유사한 목격 제보가 있습니다!\n내용: %s\n🔗 [이미지 보기](%s)\n📝 유사도: %.2f",
-                findWantPost.getContent(), imageUrl, similarity
+                "🔍 유사한 목격 제보가 있습니다!\n\n내용: %s\n [게시글 보기](%s)\n📝 유사도: %.2f",
+                findWantPost.getContent(), imageUrl, postUrl, similarityInfo
         );
 
-        // 3️⃣ AI 알림 사용자 설정 (시스템 계정 or NULL)
         Comment comment = Comment.builder()
                 .lostFoundPost(targetPost)
-                .author(null)  // 🔹 추후 AI 시스템 계정으로 변경 가능
+                .author(memberRepository.getMemberById(4L))
                 .content(commentContent)
                 .build();
 
         commentRepository.save(comment);
 
-        log.info("✅ai 덧글 연동 완료 (유사도: {:.2f})", similarity);
+        log.info("✅ai 덧글 연동 완료 (유사도: {:.2f})", similarityInfo);
     }
 }
