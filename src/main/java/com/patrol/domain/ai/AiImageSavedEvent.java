@@ -1,6 +1,5 @@
-package com.patrol.domain.ai.event;
+package com.patrol.domain.ai;
 
-import com.patrol.domain.ai.entity.AiImage;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

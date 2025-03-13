@@ -1,4 +1,4 @@
-package com.patrol.domain.ai.config;
+package com.patrol.domain.ai;
 
 import com.fasterxml.jackson.databind.deser.std.StringDeserializer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;

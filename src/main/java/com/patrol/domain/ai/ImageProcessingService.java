@@ -1,9 +1,7 @@
-package com.patrol.domain.ai.service;
+package com.patrol.domain.ai;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.patrol.domain.ai.entity.AiImage;
-import com.patrol.domain.ai.repository.AiImageRepository;
 import com.patrol.domain.lostFoundPost.entity.PostStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

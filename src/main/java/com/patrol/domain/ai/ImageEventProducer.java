@@ -1,4 +1,4 @@
-package com.patrol.domain.ai.event;
+package com.patrol.domain.ai;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

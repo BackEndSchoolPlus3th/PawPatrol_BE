@@ -1,9 +1,5 @@
-package com.patrol.domain.ai.service;
+package com.patrol.domain.ai;
 
-import com.patrol.domain.ai.event.AiImageSavedEvent;
-import com.patrol.domain.ai.event.ImageEventProducer;
-import com.patrol.domain.ai.entity.AiImage;
-import com.patrol.domain.ai.repository.AiImageRepository;
 import com.patrol.domain.lostFoundPost.entity.PostStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

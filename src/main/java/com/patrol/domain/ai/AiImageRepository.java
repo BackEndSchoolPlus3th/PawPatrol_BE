@@ -1,6 +1,5 @@
-package com.patrol.domain.ai.repository;
+package com.patrol.domain.ai;
 
-import com.patrol.domain.ai.entity.AiImage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

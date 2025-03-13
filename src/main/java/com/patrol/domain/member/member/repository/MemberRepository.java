@@ -1,5 +1,7 @@
 package com.patrol.domain.member.member.repository;
 
+
+
 import com.patrol.domain.member.member.entity.Member;
 import com.patrol.domain.member.member.enums.MemberStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
