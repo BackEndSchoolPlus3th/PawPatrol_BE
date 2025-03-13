@@ -169,5 +169,4 @@ public class ApiV1ProtectionController {
     protectionService.rejectProtection(protectionId, loginUser.getId(), request.rejectReason());
     return new RsData<>("200", "임시보호/입양 신청 거절 완료");
   }
-
 }

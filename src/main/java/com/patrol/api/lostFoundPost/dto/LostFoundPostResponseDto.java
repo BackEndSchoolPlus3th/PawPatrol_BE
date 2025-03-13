@@ -1,5 +1,6 @@
 package com.patrol.api.lostFoundPost.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.patrol.api.PostResponseDto.PostResponseDto;
 import com.patrol.api.animal.dto.PetResponseDto;
 import com.patrol.api.image.dto.ImageResponseDto;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class LostFoundPostResponseDto implements PostResponseDto {
     private Long id;
     private MemberResponseDto author;
@@ -51,15 +53,12 @@ public class LostFoundPostResponseDto implements PostResponseDto {
         this.longitude = lostFoundPost.getLongitude();
         this.findTime = lostFoundPost.getFindTime();
         this.lostTime = lostFoundPost.getLostTime();
-        // Set animalType based on pet or lostFoundPost's animalType
         if (lostFoundPost.getPet() != null && lostFoundPost.getPet().getAnimalType() != null) {
-            // Convert AnimalType enum to String
-            this.animalType = lostFoundPost.getPet().getAnimalType().toString(); // Convert enum to String
+            this.animalType = lostFoundPost.getPet().getAnimalType().toString();
         } else {
-            // If animalType in pet is null, set it from lostFoundPost
             this.animalType = (lostFoundPost.getAnimalType() != null && !lostFoundPost.getAnimalType().toString().equals("null"))
-                    ? lostFoundPost.getAnimalType().toString() // Convert to String
-                    : "null"; // If it is "null", explicitly set it to "null" // If animalType is "null" set it to "null" explicitly
+                    ? lostFoundPost.getAnimalType().toString()
+                    : "null";
         }
         this.status= String.valueOf(lostFoundPost.getStatus());
         this.location = lostFoundPost.getLocation();
@@ -81,11 +80,6 @@ public class LostFoundPostResponseDto implements PostResponseDto {
     @Override
     public Long getId() {
         return id;
-    }
-
-    @Override
-    public String getTitle() {
-        return content;
     }
 
     @Override

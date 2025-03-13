@@ -124,4 +124,13 @@ public class lostFoundPostController {
         return new RsData<>("200", "목격 게시글 목록을 성공적으로 호출했습니다.", posts);
     }
 
+    @GetMapping("reward-list")
+    @Operation(summary = "보상금이 있는 실종 게시글 목록 조회")
+    public RsData<Page<LostFoundPostResponseDto>> getAllRewardFindingPosts(
+        @RequestParam(name = "page", defaultValue = "0") int page,
+        @RequestParam(name = "size", defaultValue = "20") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<LostFoundPostResponseDto> posts = lostFoundPostService.getRewardPosts(PostStatus.FINDING, pageable);
+        return new RsData<>("200", "실종 게시글 목록 목록을 성공적으로 호출했습니다.", posts);
+    }
 }

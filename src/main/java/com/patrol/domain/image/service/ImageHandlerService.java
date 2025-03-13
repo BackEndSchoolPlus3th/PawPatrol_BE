@@ -22,5 +22,4 @@ public interface ImageHandlerService {
 
     List<Image> uploadAndModifiedImages (List< MultipartFile> imageFile, String folderPath, Long animalId);
 
-    String uploadImage (MultipartFile firstImage);
 }

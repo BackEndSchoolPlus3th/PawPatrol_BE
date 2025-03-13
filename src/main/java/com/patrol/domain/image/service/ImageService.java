@@ -138,6 +138,7 @@ public class ImageService {
                 if (key != null) {
                     ncpObjectStorageService.delete(key);
                     imageRepository.delete(image);
+                    log.info("이미지 삭제 완료: ID={}, Path={}", image.getId(), fullPath);
                 } else {
                     log.error("이미지 경로 추출 실패: ID={}, Path={}", image.getId(), fullPath);
                 }
@@ -150,7 +151,7 @@ public class ImageService {
     @Transactional
     public void deleteImage(String imageUrl, Long loginUserId) {
         log.error(imageUrl);
-        Image image = (Image) imageRepository.findByPath(imageUrl);
+        Image image = imageRepository.findByPath(imageUrl);
         if (image == null) {
             throw new CustomException(ErrorCode.ENTITY_NOT_FOUND);
         }
@@ -193,6 +194,7 @@ public class ImageService {
         }
     }
 
+
     private String extractKeyFromUrl(String url) {
         try {
             // 예: https://kr.object.ncloudstorage.com/paw-patrol/protection/sample27.jpg
@@ -209,4 +211,13 @@ public class ImageService {
       return imageRepository.findAllByAnimalId(animalId);
     }
 
+    @Transactional
+    public Image connectAnimal(String imageUrl, Long animalId) {
+        Image image = imageRepository.findByPath(imageUrl);
+        if (image == null) {
+            throw new CustomException(ErrorCode.ENTITY_NOT_FOUND);
+        }
+        image.setAnimalId(animalId);
+        return image;
+    }
 }

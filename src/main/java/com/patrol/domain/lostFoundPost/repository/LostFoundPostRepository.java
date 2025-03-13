@@ -62,6 +62,8 @@ public interface LostFoundPostRepository extends JpaRepository<LostFoundPost, Lo
             @Param("radius") double radius,
             @Param("name") String name);
 
+    @Query("SELECT p FROM LostFoundPost p WHERE p.status = :status AND p.reward IS NOT NULL AND p.reward > 0 ORDER BY p.reward DESC")
+    Page<LostFoundPost> findByStatusAndRewardNotNull(@Param("status") PostStatus status, Pageable pageable);
     Optional<LostFoundPost> findById (Long foundId);
 
 }

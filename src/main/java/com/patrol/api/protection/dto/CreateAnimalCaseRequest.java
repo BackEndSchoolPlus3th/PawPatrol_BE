@@ -5,6 +5,8 @@ import com.patrol.domain.animal.enums.AnimalGender;
 import com.patrol.domain.animal.enums.AnimalSize;
 import com.patrol.domain.animal.enums.AnimalType;
 
+import java.util.List;
+
 public record CreateAnimalCaseRequest(
     String title,             // 게시글 제목
     String description,       // 게시글 상세 설명
@@ -17,7 +19,8 @@ public record CreateAnimalCaseRequest(
     String name,              // 이름
     String estimatedAge,      // 추정 나이
     String registrationNo,    // 동물등록번호
-    AnimalType animalType     // 동물 종류 (강아지/고양이)
+    AnimalType animalType,     // 동물 종류 (강아지/고양이)
+    List<String> animalImageUrls     // 제보 게시글 이미지 URL
 ) {
   public Animal toAnimal() {
     return Animal.builder()

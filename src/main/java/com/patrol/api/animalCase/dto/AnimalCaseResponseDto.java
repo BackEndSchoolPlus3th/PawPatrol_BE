@@ -9,13 +9,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AnimalCaseResponseDto implements PostResponseDto {
     private Long id;
-    private String title;
-    private String description;
+    private String content;
 
     public AnimalCaseResponseDto(AnimalCase post) {
         this.id = post.getId();
-        this.title = post.getTitle();
-        this.description = post.getDescription();
+        this.content = post.getTitle();
     }
 
     @Override

@@ -11,20 +11,22 @@ spring:
     virtual:
       enabled: true
   kafka:
-    bootstrap-servers: 43.201.55.18:19092,10.0.1.162:19092
+    bootstrap-servers: localhost:19092
     consumer:
-      enable-auto-commit: false
-      auto-offset-reset: earliest
+      group-id: image-processor-group
+      auto-offset-reset: latest
+    producer:
+      retries: 3
     listener:
       concurrency: 3
     groups:
-      ai-group-id: ai-image-processor
-      notification-group-id: push-notification-group
-      chat-notification-group-id: chat-notification-group
+      ai-group-id: ai-image-processor    # ✅ AI 이미지 전용 Consumer
+      notification-group-id: push-notification-group  # ✅ 알림 전용 Consumer
+      chat-notification-group-id: chat-notification-group  # ✅ 채팅 알림 전용 Consumer
+      chat-message-group-id: chat-message-group  # ✅ 실시간 채팅 메시지 전용 Consumer
   profiles:
     active: dev
     include: secret
-
 
   autoconfigure:
     exclude:
@@ -111,7 +113,8 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 ai:
-  service-url: http://223.130.161.144:8000
+  service-url: http://localhost:8000
+#  service-url: http://223.130.161.144:8000
 
 app:
   upload:

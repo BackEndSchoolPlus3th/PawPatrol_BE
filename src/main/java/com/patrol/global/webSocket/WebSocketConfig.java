@@ -24,6 +24,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 import org.springframework.web.socket.server.HandshakeInterceptor;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
+import java.security.Principal;
 import java.util.Map;
 
 @Configuration
@@ -43,16 +44,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                             ServletServerHttpRequest servletRequest = (ServletServerHttpRequest) request;
                             HttpServletRequest httpRequest = servletRequest.getServletRequest();
 
-                            // 쿠키에서 accessToken 추출
                             Cookie[] cookies = httpRequest.getCookies();
                             if (cookies != null) {
                                 for (Cookie cookie : cookies) {
                                     if ("accessToken".equals(cookie.getName())) {
                                         String accessToken = cookie.getValue();
-                                        // 토큰에서 사용자 정보 추출
                                         Map<String, Object> payload = authTokenService.payload(accessToken);
                                         if (payload != null) {
-                                            // 사용자 ID와 필요한 정보를 세션 속성에 저장
                                             attributes.put("userId", String.valueOf(payload.get("id")));
                                             attributes.put("userEmail", payload.get("email"));
                                             attributes.put("userNickname", payload.get("nickname"));
@@ -72,6 +70,31 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 })
                 .setAllowedOrigins(AppConfig.getSiteFrontUrl(), AppConfig.getDevFrontUrl())
                 .withSockJS();
+    }
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(new ChannelInterceptor() {
+            @Override
+            public Message<?> preSend(Message<?> message, MessageChannel channel) {
+                StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+
+                if (StompCommand.CONNECT.equals(accessor.getCommand())) {
+                    Map<String, Object> sessionAttributes = accessor.getSessionAttributes();
+                    if (sessionAttributes != null && sessionAttributes.containsKey("userId")) {
+                        final String userId = (String) sessionAttributes.get("userId");
+
+                        accessor.setUser(() -> userId);
+
+                        System.out.println("WebSocket: Principal set for user " + userId);
+                    } else {
+                        System.out.println("WebSocket: No userId found in session attributes");
+                    }
+                }
+
+                return message;
+            }
+        });
     }
 
     @Override

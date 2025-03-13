@@ -6,9 +6,12 @@ import com.patrol.domain.comment.entity.Comment;
 import com.patrol.domain.comment.repository.CommentRepository;
 import com.patrol.domain.lostFoundPost.entity.LostFoundPost;
 import com.patrol.domain.lostFoundPost.repository.LostFoundPostRepository;
-import com.patrol.domain.lostFoundPost.service.NotificationService;
 import com.patrol.domain.member.member.entity.Member;
+import com.patrol.domain.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,30 +22,29 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
-    private final NotificationService notificationService;
     private final LostFoundPostRepository lostFoundPostRepository;
+    private final NotificationRepository notificationRepository;
+    private final CommentEventPublisher commentEventPublisher;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final Logger logger = LoggerFactory.getLogger(CommentService.class);
 
     @Transactional
     public CommentResponseDto createComment(CommentRequestDto requestDto, Member author) {
         Comment comment = new Comment();
         comment.setContent(requestDto.getContent());
-
-        // ✅ 로그인한 사용자 정보 설정
         comment.setAuthor(author);
 
-        // FindPost 조회 후 설정
         if (requestDto.getLostFoundPostId() != null) {
             LostFoundPost lostFoundPost = lostFoundPostRepository.findById(requestDto.getLostFoundPostId())
                     .orElseThrow(() -> new RuntimeException("해당 ID의 제보 게시글을 찾을 수 없습니다."));
             comment.setLostFoundPost(lostFoundPost);
-
-            // After saving the comment, send a notification via WebSocket
-            notificationService.sendLostFoundPostNotification(lostFoundPost);
         }
 
-        // 저장 후 강제 플러시
-        commentRepository.saveAndFlush(comment);
-        return new CommentResponseDto(comment);
+        Comment savedComment = commentRepository.save(comment);
+
+        commentEventPublisher.publishCommentCreated(savedComment);
+
+        return new CommentResponseDto(savedComment);
     }
 
     @Transactional
@@ -50,7 +52,6 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId)
             .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다."));
 
-        // 로그인한 사용자(author)가 댓글 작성자와 일치하는지 확인
         if (!comment.getAuthor().equals(author)) {
             throw new RuntimeException("댓글 수정 권한이 없습니다.");
         }
@@ -62,7 +63,6 @@ public class CommentService {
     public void deleteComment(Long commentId, Member author) {
         Comment comment = commentRepository.findById(commentId)
             .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다."));
-        // 로그인한 사용자(author)가 댓글 작성자와 일치하는지 확인
         if (!comment.getAuthor().equals(author)) {
             throw new RuntimeException("댓글 삭제 권한이 없습니다.");
         }

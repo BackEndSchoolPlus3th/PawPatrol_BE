@@ -13,6 +13,7 @@ public class FCMNotificationService {
 
     public void sendChatNotification(ResponseMessage chatMessage, String email) throws FirebaseMessagingException {
         String token = getToken(email);
+
         Message message = Message.builder()
                 .putData("title", "채팅이 도착했습니다. ")
                 .putData("content", chatMessage.getContent())

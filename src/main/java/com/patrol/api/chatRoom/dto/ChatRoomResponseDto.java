@@ -5,7 +5,6 @@ import com.patrol.api.animalCase.dto.AnimalCaseResponseDto;
 import com.patrol.api.chatMessage.dto.ResponseMessage;
 import com.patrol.api.lostFoundPost.dto.LostFoundPostResponseDto;
 import com.patrol.api.member.member.dto.MemberResponseDto;
-import com.patrol.domain.Postable.Postable;
 import com.patrol.domain.animalCase.entity.AnimalCase;
 import com.patrol.domain.chatRoom.entity.ChatRoom;
 import com.patrol.domain.chatRoom.entity.ChatRoomType;

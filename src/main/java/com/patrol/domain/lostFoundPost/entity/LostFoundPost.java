@@ -64,6 +64,8 @@ public class LostFoundPost extends BaseEntity implements Postable {
     public LostFoundPost(LostFoundPostRequestDto requestDto, Member author, Animal pet, AnimalType animalType) {
         this(requestDto);
         this.author = author;
+        this.pet = pet;  // null로 전달되면 null로 유지됨
+        this.animalType = animalType != null ? animalType : null;
         this.pet = pet;
         this.animalType = animalType != null ? animalType : null;
     }
@@ -88,7 +90,9 @@ public class LostFoundPost extends BaseEntity implements Postable {
         } else {
             this.status = PostStatus.FINDING;
         }
+
         this.animalType = requestDto.getAnimalType() != null ? AnimalType.valueOf(requestDto.getAnimalType()) : null;  // Set animalType
+        this.reward = requestDto.getReward();
     }
 
     public LostFoundPost (LostFoundPostRequestDto requestDto, Member author, Animal pet) {
@@ -102,7 +106,6 @@ public class LostFoundPost extends BaseEntity implements Postable {
         }
         this.images.add(image);
     }
-
     @Override
     public Long getId() {
         return super.getId();

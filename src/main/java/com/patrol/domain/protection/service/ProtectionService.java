@@ -46,6 +46,7 @@ public class ProtectionService {
   private final AnimalCaseEventPublisher animalCaseEventPublisher;
   private final AnimalRepository animalRepository;
   private final ImageService imageService;
+  private final ProtectionEventPublisher protectionEventPublisher;
 
 
 
@@ -164,6 +165,7 @@ public class ProtectionService {
 
     protectionRepository.save(protection);
     animalCaseEventPublisher.applyProtection(protection, memberId, animalCase.getStatus());
+    protectionEventPublisher.applyProtection(protection, memberId);
     return ProtectionResponse.of(protection);
   }
 
@@ -174,12 +176,10 @@ public class ProtectionService {
     Protection protection = protectionRepository.findById(protectionId)
         .orElseThrow(() -> new CustomException(ErrorCode.ENTITY_NOT_FOUND));
 
-    // 내가 작성한 것인지 확인
     if (!protection.getApplicant().getId().equals(memberId)) {
       throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
     }
 
-    // 이미 취소할 수 없는 상태인지 확인
     if (protection.getProtectionStatus() != ProtectionStatus.PENDING) {
       throw new CustomException(ErrorCode.INVALID_STATUS_CHANGE);
     }
@@ -209,6 +209,7 @@ public class ProtectionService {
     if (protection.getProtectionType().equals(ProtectionType.ADOPTION)) {
       animalCase.updateStatus(CaseStatus.ADOPTED);
     }
+    protectionEventPublisher.acceptProtection(protection, memberId);
 
     animalCase.getAnimal().setOwner(protection.getApplicant());
     animalCase.setCurrentFoster(protection.getApplicant());
@@ -235,6 +236,7 @@ public class ProtectionService {
 
     protection.reject(rejectReason);
     animalCaseEventPublisher.rejectProtection(protection.getId(), memberId, protection.getAnimalCase().getStatus());
+    protectionEventPublisher.rejectProtection(protection.getId(), memberId);
   }
 
 
@@ -246,8 +248,18 @@ public class ProtectionService {
     animal.setOwner(member);
     animalRepository.save(animal);
 
+    List<Image> imageList = new ArrayList<>();
+    if (request.animalImageUrls() != null && !request.animalImageUrls().isEmpty()) {
+      for (String imageUrl : request.animalImageUrls()) {
+        imageList.add(imageService.connectAnimal(imageUrl, animal.getId()));
+      }
+    }
+
     if (images != null && !images.isEmpty()) {
-      List<Image> imageList = imageService.uploadAnimalImages(images, animal.getId());
+      imageList.addAll(imageService.uploadAnimalImages(images, animal.getId()));
+    }
+
+    if (!imageList.isEmpty()) {
       animal.setImageUrl(imageList.getFirst().getPath());
     }
 
